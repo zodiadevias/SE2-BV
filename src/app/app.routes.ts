@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { PagesComponent } from './pages/pages.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ElectionComponent } from './pages/election/election.component';
 import { ResultComponent } from './pages/result/result.component';
