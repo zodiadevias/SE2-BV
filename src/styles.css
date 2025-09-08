@@ -1,0 +1,145 @@
+:root {
+  /* Brand greens */
+  --green-50: #f0fdf4;
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-300: #86efac;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --green-800: #166534;
+  --green-900: #14532d;
+
+  /* Accents & neutrals */
+  --accent: #0ea5e9;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  --bg: #0b1410;
+  --panel: #0f1b15;
+  --panel-elev: #122219;
+  --text: #e5efe8;
+  --muted: #b8c9bf;
+  --primary: var(--green-500);
+  --primary-strong: var(--green-600);
+  --primary-weak: var(--green-400);
+  --ring: color-mix(in srgb, var(--primary) 40%, transparent);
+  --shadow: 0 10px 25px rgba(0,0,0,0.35);
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text);
+  background: linear-gradient(180deg, #08100c 0%, var(--bg) 100%);
+}
+
+/* Typography */
+h1, h2, h3, h4 { color: var(--text); margin: 0 0 .5rem; }
+p { color: var(--muted); margin: 0 0 1rem; }
+
+/* Layout helpers */
+.container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+.grid { display: grid; gap: 1rem; }
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* Panels */
+.card {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-elev) 100%);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.card-header { padding: 1rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-weight: 600; letter-spacing: .2px; }
+.card-body { padding: 1.25rem; }
+
+/* Buttons */
+.button {
+  appearance: none;
+  border: 0;
+  border-radius: 10px;
+  padding: .7rem 1rem;
+  font-weight: 600;
+  color: #0b1410;
+  background: linear-gradient(180deg, var(--primary-weak), var(--primary));
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent);
+  cursor: pointer;
+  transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
+}
+.button:hover { filter: brightness(1.05); box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 45%, transparent); }
+.button:active { transform: translateY(1px); }
+.button.ghost { background: transparent; color: var(--primary-weak); border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent); }
+
+/* Inputs */
+.input, select, textarea {
+  width: 100%;
+  padding: .7rem .9rem;
+  background: #0b1712;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+.input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px var(--ring); border-color: var(--primary); }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .55rem; border-radius: 999px; font-size: .8rem; font-weight: 600; }
+.badge.success { background: color-mix(in srgb, var(--primary) 25%, transparent); color: var(--primary-weak); border: 1px solid color-mix(in srgb, var(--primary) 50%, transparent); }
+
+/* Header & Sidebar */
+.app-shell { display: grid; grid-template-rows: 64px 1fr; height: 100dvh; }
+.topbar {
+  position: sticky; top: 0; z-index: 50; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, #0c1712 0%, #0b1410 100%);
+}
+.brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; letter-spacing: .3px; }
+.brand-mark { width: 12px; height: 12px; border-radius: 3px; background: var(--primary); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 30%, transparent); }
+
+.shell-body { display: grid; grid-template-columns: 260px 1fr; gap: 0; min-height: 0; }
+.sidebar {
+  border-right: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, #0e1a14 0%, #0b1410 100%);
+  padding: .75rem; overflow: auto;
+}
+.nav { display: flex; flex-direction: column; gap: .25rem; }
+.nav a {
+  display: flex; align-items: center; gap: .6rem; text-decoration: none;
+  color: var(--muted); padding: .65rem .7rem; border-radius: 10px;
+  border: 1px solid transparent; transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.nav a:hover { background: #0f1b15; color: var(--text); }
+.nav a.active { background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--text); border-color: color-mix(in srgb, var(--primary) 35%, transparent); }
+
+.content { padding: 1rem; overflow: auto; }
+
+/* Tables */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: .75rem .75rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.table th { color: var(--muted); font-weight: 600; }
+
+/* Footer */
+.footer { color: var(--gray-500); font-size: .85rem; padding: .75rem 1rem; border-top: 1px solid rgba(255,255,255,0.06); }
+
+/* Responsive */
+@media (max-width: 1024px) { .shell-body { grid-template-columns: 72px 1fr; } .sidebar .label { display:none; } }
+@media (max-width: 768px) { .shell-body { grid-template-columns: 1fr; } .sidebar { position: fixed; inset: 64px 0 auto 0; height: calc(100dvh - 64px); transform: translateX(-100%); transition: transform .25s ease; } .sidebar.open { transform: none; } }

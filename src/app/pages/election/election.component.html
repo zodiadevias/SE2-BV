@@ -1,0 +1,109 @@
+<div class="container">
+  <form [formGroup]="electionForm" (ngSubmit)="submit()" class="card">
+    <div class="card-header">
+      <div class="card-title">Create Election</div>
+      <button class="button" type="submit">Create</button>
+    </div>
+    <div class="card-body grid grid-2">
+      <div>
+        <label>Name</label>
+        <input class="input" placeholder="e.g., Board Election 2025" formControlName="name" />
+      </div>
+      <div>
+        <label>Chain ID</label>
+        <input class="input" placeholder="e.g., 11155111 (Sepolia)" formControlName="chainId" />
+      </div>
+      <div>
+        <label>Start</label>
+        <input type="datetime-local" class="input" formControlName="start" />
+      </div>
+      <div>
+        <label>End</label>
+        <input type="datetime-local" class="input" formControlName="end" />
+      </div>
+
+      <div style="grid-column: 1 / -1;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:.5rem;">
+          <div class="card-title">Partylists</div>
+          <button class="button ghost" type="button" (click)="addParty()">Add Party</button>
+        </div>
+        <div formArrayName="partylists" class="stack" style="gap: 1rem;">
+          <div *ngFor="let party of partylists.controls; let i = index" [formGroupName]="i" class="card party-card">
+            <div class="card-header">
+              <div class="card-title">Party {{ i + 1 }}</div>
+              <div style="display:flex; gap:.5rem;">
+                <button class="button danger" type="button" (click)="removeParty(i)">Remove</button>
+                <button class="button ghost" type="button" (click)="addCandidate(i)">Add Candidate</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="grid grid-2">
+                <div>
+                  <label>Party Name</label>
+                  <input class="input" placeholder="e.g., Unity Party" formControlName="name" />
+                </div>
+              </div>
+
+              <div formArrayName="candidates" class="candidate-list">
+                <div *ngFor="let c of candidatesAt(i).controls; let j = index" [formGroupName]="j" class="candidate-row">
+                  <div class="row-header">
+                    <div class="row-title">Candidate {{ j + 1 }}</div>
+                    <button class="button danger" type="button" (click)="removeCandidate(i, j)">Remove</button>
+                  </div>
+                  <div class="row-body grid grid-3">
+                    <div>
+                      <label>Full Name</label>
+                      <input class="input" placeholder="e.g., Alice Johnson" formControlName="fullName" />
+                    </div>
+                    <div>
+                      <label>Position</label>
+                      <input class="input" placeholder="e.g., President" formControlName="position" />
+                    </div>
+                    <div>
+                      <label>Image</label>
+                      <input type="file" accept="image/*" (change)="onImageSelected($event, i, j)" />
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                      <label>Platform</label>
+                      <textarea class="input" rows="2" placeholder="Campaign platform" formControlName="platform"></textarea>
+                    </div>
+                    <div style="grid-column: 1 / -1;" *ngIf="c.get('imageDataUrl')?.value as img">
+                      <img [src]="img" alt="Preview" style="max-width: 200px; border-radius: 6px;" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="card" style="margin-top:1rem;">
+    <div class="card-header">
+      <div class="card-title">Elections</div>
+      <button class="button ghost" type="button">Refresh</button>
+    </div>
+    <div class="card-body" style="overflow:auto;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Window</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Board Election 2025</td>
+            <td>Apr 1 → Apr 4</td>
+            <td><span class="badge success">Scheduled</span></td>
+            <td style="text-align:right;"><button class="button" type="button">Open</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

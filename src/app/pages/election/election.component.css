@@ -1,0 +1,34 @@
+.party-card {
+  padding: 0;
+  background: var(--card-bg, #0b1410)
+}
+
+.candidate-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+
+.candidate-row {
+  border: 1px solid #0b1410;
+  border-radius: 8px;
+  padding: .75rem;
+  background: inherit;
+}
+
+.candidate-row .row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .5rem;
+}
+
+.candidate-row .row-title {
+  font-weight: 600;
+}
+
+.candidate-row .row-body {
+  gap: .5rem;
+}
+
