@@ -8,7 +8,7 @@ export class BackendService {
 
   private apiUrl = 'http://localhost:4000';
 
-  async vote(electionId: number, candidateId: number) {
+  async vote(electionId: number, candidateId: number[]) {
     const response = await axios.post(`${this.apiUrl}/vote`, {
       electionId,
       candidateId
