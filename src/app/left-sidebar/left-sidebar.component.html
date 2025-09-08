@@ -30,4 +30,12 @@
       <span class="label">Results</span>
     </a>
   }
+
+  <ng-container *ngIf="user$ | async as user; else guest">
+    <a style="cursor: pointer;" (click)="logout()">Logout</a>
+  </ng-container>
+  <ng-template #guest>
+    <a style="cursor: pointer;" (click)="openAuthDialog()">Login / Register</a>
+  </ng-template>
+  
 </nav>
