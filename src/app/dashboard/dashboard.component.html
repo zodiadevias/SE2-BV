@@ -1,14 +1,21 @@
 <div class="container grid grid-2">
   <div class="card">
-    <div class="card-header"><div class="card-title">Active Elections</div><span class="badge success">Live</span></div>
-    <div class="card-body">
-      <p>Monitor ongoing elections and candidate status in real-time.</p>
-    </div>
-  </div>
-  <div class="card">
     <div class="card-header"><div class="card-title">Registered Voters</div><span class="badge success">Updated</span></div>
     <div class="card-body">
       <p>Registered voter list with on-chain verification.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Active Elections</div><span class="badge success">Live</span></div>
+    <div class="card-body">
+      <div class="grid grid-3">
+        <div class="card" *ngFor="let i of [1,2,3,4,5,6]">
+          <div class="card-header"><div class="card-title">Election {{ i }}</div></div>
+          <div class="card-body">
+            <p>Placeholder description of an active election.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

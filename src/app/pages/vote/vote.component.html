@@ -1,1 +1,55 @@
-<p>vote works!</p>
+<div class="container grid grid-2">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Partylists</div>
+    </div>
+    <div class="card-body">
+      <div class="list">
+        <div
+          class="list-item"
+          *ngFor="let party of partylists"
+          (click)="selectParty(party.id)"
+          [ngClass]="{ active: party.id === selectedPartyId }"
+          style="cursor:pointer;"
+        >
+          <div class="list-item-title">{{ party.name }}</div>
+          <div class="list-item-subtitle">{{ party.description }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Candidates</div>
+      <span class="badge" *ngIf="!selectedPartyId">Pick a party</span>
+      <span class="badge success" *ngIf="selectedPartyId">Ready</span>
+    </div>
+    <div class="card-body">
+      <div *ngIf="!selectedPartyId" class="muted">Select a partylist to view candidates.</div>
+      <div *ngIf="selectedParty">
+        <div class="list">
+          <div
+            class="list-item"
+            *ngFor="let cand of visibleCandidates"
+            (click)="selectCandidate(cand.id)"
+            [ngClass]="{ active: cand.id === selectedCandidateId }"
+            style="cursor:pointer;"
+          >
+            <div class="list-item-title">{{ cand.name }}</div>
+            <div class="list-item-subtitle">{{ cand.role }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem; display:flex; gap:.5rem; align-items:center;">
+        <button class="button" [disabled]="!selectedCandidateId" (click)="castVote()">Cast Vote</button>
+        <span class="muted" *ngIf="!selectedCandidateId">Choose a candidate to enable voting</span>
+      </div>
+
+      <div class="alert success" *ngIf="lastVotedMessage" style="margin-top:1rem;">
+        {{ lastVotedMessage }}
+      </div>
+    </div>
+  </div>
+</div>
