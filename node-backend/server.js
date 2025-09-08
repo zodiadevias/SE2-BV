@@ -50,14 +50,16 @@ app.post("/vote", async (req, res) => {
 
 // Create election
 app.post("/create-election", async (req, res) => {
-  const { name, startDate, endDate, domainFilter } = req.body;
+  console.log(req.body);
+  const { name, startDate, endDate, domainFilter,email } = req.body;
 
   try {
     const tx = votingContract.methods.createElection(
       name,
       startDate,
       endDate,
-      domainFilter
+      domainFilter,
+      email
     );
     const gas = await tx.estimateGas({ from: serverAccount });
     const data = tx.encodeABI();
