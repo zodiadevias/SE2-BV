@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>{{ isLogin ? 'Login' : 'Register' }}</h2>
+
+<form [formGroup]="authForm" (ngSubmit)="submit()">
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput type="email" formControlName="email" required />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Password</mat-label>
+    <input matInput type="password" formControlName="password" required />
+  </mat-form-field>
+
+  <mat-form-field *ngIf="!isLogin" appearance="outline">
+    <mat-label>Confirm Password</mat-label>
+    <input matInput type="password" formControlName="confirmPassword" required />
+  </mat-form-field>
+
+  <div *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</div>
+
+  <button mat-raised-button color="primary" type="submit">
+    {{ isLogin ? 'Login' : 'Register' }}
+  </button>
+</form>
+
+<div class="text-center">
+  <button mat-button (click)="toggleMode()">
+    {{ isLogin ? 'Need an account? Register' : 'Already have an account? Login' }}
+  </button>
+</div>
