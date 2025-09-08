@@ -1,21 +1,8 @@
-
+<!-- 
 <h2>{{ isLogin ? 'Login' : 'Register' }}</h2>
 
 <form [formGroup]="authForm" (ngSubmit)="submit()">
-    <!-- <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput type="email" formControlName="email" required />
-    </mat-form-field>
-
-    <mat-form-field class="input">
-        <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName="password" required />
-    </mat-form-field>
-
-    <mat-form-field *ngIf="!isLogin" appearance="outline">
-        <mat-label>Confirm Password</mat-label>
-        <input matInput type="password" formControlName="confirmPassword" required />
-    </mat-form-field> -->
+    
 
     <label>Email</label>
     <input type="email" formControlName="email" placeholder="Enter your email" class="input"/>
@@ -26,6 +13,11 @@
     <ng-container *ngIf="!isLogin">
         <label>Confirm Password</label>
         <input type="password" formControlName="confirmPassword" placeholder="Confirm password" class="input"/>
+        <label>Role</label>
+        <select formControlName="role">
+            <option value="organizer">Organizer</option>
+            <option value="voter">Voter</option>
+        </select>
     </ng-container>
 
     <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
@@ -41,4 +33,52 @@
 </button>
 </div>
 
+ -->
 
+ <h2>{{ isLogin ? 'Login' : 'Register' }}</h2>
+
+<form [formGroup]="authForm" (ngSubmit)="submit()">
+
+  <label>Email</label>
+  <input type="email" formControlName="email" placeholder="Enter your email" class="input"/>
+
+  <label>Password</label>
+  <input type="password" formControlName="password" placeholder="Enter your password" class="input"/>
+
+  <ng-container *ngIf="!isLogin">
+    <label>Confirm Password</label>
+    <input type="password" formControlName="confirmPassword" placeholder="Confirm password" class="input"/>
+
+    <label>Role</label>
+    <select formControlName="role" class="input">
+      <option value="organizer">Organizer</option>
+      <option value="voter">Voter</option>
+    </select>
+
+    <!-- OTP Step -->
+    <!-- OTP Step -->
+    <div *ngIf="otpSent && !isOtpVerified; else sendOtpBlock">
+        <label>Enter OTP</label>
+        <input type="text" formControlName="otp" placeholder="123456" class="input"/>
+        <button type="button" (click)="verifyOtp()" class="button">Verify OTP</button>
+    </div>
+
+
+    <ng-template #sendOtpBlock>
+      <button type="button" (click)="sendOtp()" class="button">Send OTP</button>
+    </ng-template>
+  </ng-container>
+
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <!-- Login button only -->
+  <button *ngIf="isLogin" type="submit" class="button">
+    Login
+  </button>
+</form>
+
+<div class="text-center">
+  <button (click)="toggleMode()" class="button ghost">
+    {{ isLogin ? 'Need an account? Register' : 'Already have an account? Login' }}
+  </button>
+</div>

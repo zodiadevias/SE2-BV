@@ -25,12 +25,19 @@ export class LeftSidebarComponent {
     });
   }
 
+  ngOnInit() {
+    this.authService.authState$.subscribe(user => {
+      if(user) {
+        console.log('Logged in as', user.email);
+      } else {
+        this.openAuthDialog();
+      }
+    });
+  }
+
   user$: Observable<User | null>;
   constructor(private authService: AuthService, private dialog: MatDialog) {
     this.user$ = this.authService.authState$;
-    if(this.user$) {
-      console.log(this.user$);
-    }
   }
   async logout() {
     try{
