@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
+
+
 @Component({
   selector: 'app-election',
   standalone: true,
@@ -10,6 +12,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Va
   styleUrl: './election.component.css'
 })
 export class ElectionComponent {
+
   electionForm: FormGroup;
 
   constructor(private readonly formBuilder: FormBuilder) {

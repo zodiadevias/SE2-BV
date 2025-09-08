@@ -1,30 +1,44 @@
-<h2 mat-dialog-title>{{ isLogin ? 'Login' : 'Register' }}</h2>
+
+<h2>{{ isLogin ? 'Login' : 'Register' }}</h2>
 
 <form [formGroup]="authForm" (ngSubmit)="submit()">
-  <mat-form-field appearance="outline">
-    <mat-label>Email</mat-label>
-    <input matInput type="email" formControlName="email" required />
-  </mat-form-field>
+    <!-- <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" required />
+    </mat-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Password</mat-label>
-    <input matInput type="password" formControlName="password" required />
-  </mat-form-field>
+    <mat-form-field class="input">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password" required />
+    </mat-form-field>
 
-  <mat-form-field *ngIf="!isLogin" appearance="outline">
-    <mat-label>Confirm Password</mat-label>
-    <input matInput type="password" formControlName="confirmPassword" required />
-  </mat-form-field>
+    <mat-form-field *ngIf="!isLogin" appearance="outline">
+        <mat-label>Confirm Password</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" required />
+    </mat-form-field> -->
 
-  <div *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</div>
+    <label>Email</label>
+    <input type="email" formControlName="email" placeholder="Enter your email" class="input"/>
 
-  <button mat-raised-button color="primary" type="submit">
-    {{ isLogin ? 'Login' : 'Register' }}
-  </button>
+    <label>Password</label>
+    <input type="password" formControlName="password" placeholder="Enter your password" class="input"/>
+
+    <ng-container *ngIf="!isLogin">
+        <label>Confirm Password</label>
+        <input type="password" formControlName="confirmPassword" placeholder="Confirm password" class="input"/>
+    </ng-container>
+
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <button type="submit" class="button">
+        {{ isLogin ? 'Login' : 'Register' }}
+    </button>
 </form>
 
 <div class="text-center">
-  <button mat-button (click)="toggleMode()">
+<button (click)="toggleMode()" class="button ghost">
     {{ isLogin ? 'Need an account? Register' : 'Already have an account? Login' }}
-  </button>
+</button>
 </div>
+
+

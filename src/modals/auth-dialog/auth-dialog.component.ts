@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
-import {MatDialogRef} from '@angular/material/dialog';
+import {MatDialogRef,MatDialogModule} from '@angular/material/dialog';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AuthService } from '../../services/auth.service';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-auth-dialog',
-  imports: [MatFormFieldModule, FormsModule, ReactiveFormsModule],
+  imports: [MatFormFieldModule, FormsModule, ReactiveFormsModule, CommonModule, MatInputModule, MatButtonModule, MatDialogModule],
   templateUrl: './auth-dialog.component.html',
   styleUrl: './auth-dialog.component.css'
 })
