@@ -29,6 +29,14 @@ export class LeftSidebarComponent {
     this.authService.authState$.subscribe(user => {
       if(user) {
         console.log('Logged in as', user.email);
+        this.role$.subscribe(role => {
+          
+          if (role === 'organizer') {
+            this.variant = 'organizer';
+          } else {
+            this.variant = 'user';
+          }
+        });
       } else {
         this.openAuthDialog();
       }
@@ -36,8 +44,10 @@ export class LeftSidebarComponent {
   }
 
   user$: Observable<User | null>;
+  role$: Observable<string | null>;
   constructor(private authService: AuthService, private dialog: MatDialog) {
     this.user$ = this.authService.authState$;
+    this.role$ = this.authService.role$;
   }
   async logout() {
     try{
