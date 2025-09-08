@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
@@ -8,4 +9,6 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './left-sidebar.component.html',
   styleUrl: './left-sidebar.component.css'
 })
-export class LeftSidebarComponent { }
+export class LeftSidebarComponent { 
+  @Input() variant: 'organizer' | 'user' = 'organizer';
+}

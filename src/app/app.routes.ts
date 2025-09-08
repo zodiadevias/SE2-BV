@@ -3,6 +3,8 @@ import { PagesComponent } from './pages/pages.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ElectionComponent } from './pages/election/election.component';
 import { ResultComponent } from './pages/result/result.component';
+import { UserComponent } from './user/user.component';
+import { VoteComponent } from './pages/vote/vote.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'app' },
@@ -14,6 +16,16 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent, title: 'Dashboard · SE BlockVote' },
       { path: 'election', component: ElectionComponent, title: 'Election · SE BlockVote' },
       { path: 'result', component: ResultComponent, title: 'Results · SE BlockVote' },
+    ],
+  },
+  {
+    path: 'user',
+    component: UserComponent,
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      { path: 'dashboard', component: DashboardComponent, title: 'User Dashboard · SE BlockVote' },
+      { path: 'vote', component: VoteComponent, title: 'Vote · SE BlockVote' },
+      { path: 'result', component: ResultComponent, title: 'User Results · SE BlockVote' },
     ],
   },
   { path: '**', redirectTo: 'app' },

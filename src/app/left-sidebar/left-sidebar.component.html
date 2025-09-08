@@ -1,14 +1,33 @@
 <nav class="nav">
-  <a routerLink="/app/dashboard" routerLinkActive="active">
-    <span class="icon">🏠</span>
-    <span class="label">Dashboard</span>
-  </a>
-  <a routerLink="/app/election" routerLinkActive="active">
-    <span class="icon">🗳️</span>
-    <span class="label">Election</span>
-  </a>
-  <a routerLink="/app/result" routerLinkActive="active">
-    <span class="icon">📊</span>
-    <span class="label">Results</span>
-  </a>
+  <!-- Organizer tabs -->
+  @if (variant === 'organizer') {
+    <a routerLink="/app/dashboard" routerLinkActive="active">
+      <span class="icon">🏠</span>
+      <span class="label">Dashboard</span>
+    </a>
+    <a routerLink="/app/election" routerLinkActive="active">
+      <span class="icon">🗳️</span>
+      <span class="label">Election</span>
+    </a>
+    <a routerLink="/app/result" routerLinkActive="active">
+      <span class="icon">📊</span>
+      <span class="label">Results</span>
+    </a>
+  }
+
+  <!-- User tabs -->
+  @if (variant === 'user') {
+    <a routerLink="/user/dashboard" routerLinkActive="active">
+      <span class="icon">🏠</span>
+      <span class="label">Dashboard</span>
+    </a>
+    <a routerLink="/user/vote" routerLinkActive="active">
+      <span class="icon">🗳️</span>
+      <span class="label">Vote</span>
+    </a>
+    <a routerLink="/user/result" routerLinkActive="active">
+      <span class="icon">📊</span>
+      <span class="label">Results</span>
+    </a>
+  }
 </nav>
