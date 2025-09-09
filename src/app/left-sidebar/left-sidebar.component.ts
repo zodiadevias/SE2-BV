@@ -21,7 +21,8 @@ export class LeftSidebarComponent {
     this.dialog.open(AuthDialogComponent, {
       width: '400px',
       panelClass: 'rounded-xl',
-      disableClose: true
+      disableClose: true,
+      backdropClass: 'custom-dialog-backdrop'
     });
   }
 

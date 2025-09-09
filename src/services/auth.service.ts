@@ -39,6 +39,7 @@ export class AuthService {
   }
 
   async register(email: string, password: string, role: string) {
+  try {
     const userCred: UserCredential = await createUserWithEmailAndPassword(
       this.auth,
       email,
@@ -57,7 +58,14 @@ export class AuthService {
     this.roleSubject.next(role);
 
     return userCred;
+  } catch (error: any) {
+    if (error.code === 'auth/email-already-in-use') {
+      throw new Error('This email is already registered. Please login instead.');
+    }
+    throw error;
   }
+}
+
 
   async logout() {
     await signOut(this.auth);
