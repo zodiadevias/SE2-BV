@@ -7,6 +7,7 @@ import { User } from 'firebase/auth';
 import { CommonModule } from '@angular/common';
 import { AuthDialogComponent } from '../../modals/auth-dialog/auth-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-left-sidebar',
@@ -44,15 +45,26 @@ export class LeftSidebarComponent {
     });
   }
 
+  ngDoCheck() {
+    this.role$.subscribe(role => {
+      if (role === 'organizer') {
+        this.variant = 'organizer';
+      } else {
+        this.variant = 'user';
+      }
+    });
+  }
+
   user$: Observable<User | null>;
   role$: Observable<string | null>;
-  constructor(private authService: AuthService, private dialog: MatDialog) {
+  constructor(private authService: AuthService, private dialog: MatDialog, private router: Router) {
     this.user$ = this.authService.authState$;
     this.role$ = this.authService.role$;
   }
   async logout() {
     try{
       await this.authService.logout();
+      this.router.navigate(['/dashboard']);
       console.log('Logged out!');
     }catch(err: any){
       console.log(err.message);
