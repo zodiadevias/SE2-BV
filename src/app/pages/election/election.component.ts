@@ -1,6 +1,6 @@
 import { Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BackendService } from '../../../services/backend.service';
 import { AuthService } from '../../../services/auth.service';
 import { FirebaseService } from '../../../services/firebase.service';
@@ -9,7 +9,7 @@ import { FileUploaderService } from '../../../services/file-uploader.service';
 @Component({
   selector: 'app-election',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './election.component.html',
   styleUrl: './election.component.css',
 })
@@ -162,4 +162,25 @@ export class ElectionComponent {
     this.addParty();
   }
 
+
+
+  id: any;
+  candidateId: any;
+  electionDetails: any | null = null;
+  candidate: any | null = null;
+  getElectionDetails(id: number){
+    this.backendService.getElectionDetails(id).then((res: any) => {
+      this.electionDetails = res;
+      console.log(this.electionDetails);
+    });
+  }
+
+
+  getCandidate(id: number, candidateId: number){
+    this.backendService.getElectionCandidate(id, candidateId).then((res: any) => {
+      this.candidate = res;
+      console.log(this.candidate);
+    })
+
+  }
 }
