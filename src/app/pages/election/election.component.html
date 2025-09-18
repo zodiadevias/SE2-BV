@@ -13,8 +13,8 @@
         <input class="input" placeholder="e.g., Board Election 2025" formControlName="name" />
       </div>
       <div>
-        <label>Chain ID</label>
-        <input class="input" placeholder="e.g., 11155111 (Sepolia)" formControlName="chainId" />
+        <label>Domain Filter</label>
+        <input class="input" placeholder="e.g., @gmail.com" formControlName="domainFilter" />
       </div>
       <div>
         <label>Start</label>
@@ -73,6 +73,7 @@
                     <div style="grid-column: 1 / -1;" *ngIf="c.get('imageDataUrl')?.value as img">
                       <img [src]="img" alt="Preview" style="max-width: 200px; border-radius: 6px;" />
                     </div>
+                    
                   </div>
                 </div>
               </div>

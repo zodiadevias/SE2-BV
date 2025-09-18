@@ -1,6 +1,6 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
+import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
 
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
@@ -9,12 +9,13 @@ import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { getStorage, provideStorage } from '@angular/fire/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB7FkLocz5uYXfFGzpVPFHM8tu6ZFzGbt4",
-  authDomain: "se2-blockvote.firebaseapp.com",
-  projectId: "se2-blockvote",
-  storageBucket: "se2-blockvote.firebasestorage.app",
-  messagingSenderId: "634626742659",
-  appId: "1:634626742659:web:597b23b5a88b406a4cfeb6"
+  apiKey: "AIzaSyBlmsyBH7bOyBuOsO41UXYelQBOZkkWHXc",
+  authDomain: "blockvote-912af.firebaseapp.com",
+  projectId: "blockvote-912af",
+  storageBucket: "blockvote-912af.firebasestorage.app",
+  messagingSenderId: "463375142915",
+  appId: "1:463375142915:web:8e23c80e06f6515c0d7e36",
+  measurementId: "G-4VVYNP8NKE"
 };
 
 export const appConfig: ApplicationConfig = {
@@ -24,7 +25,8 @@ export const appConfig: ApplicationConfig = {
     provideAuth(() => getAuth()),
     provideZoneChangeDetection(),
     provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage())
+    provideStorage(() => getStorage()),
+    provideHttpClient()
   ]
 };
 

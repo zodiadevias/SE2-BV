@@ -11,7 +11,7 @@ const web3 = new Web3("http://192.168.100.12:7545");
 
 // Replace with your deployed contract ABI & address
 const contractABI = require("./VotingABI.json");
-const contractAddress = "0x35030531712f8D7c3CEF9aE6Df5b97B301924395"; // deployed contract
+const contractAddress = "0xd3507Ec6b45273378acEB1C3243198C74798ea24"; // deployed contract
 const votingContract = new web3.eth.Contract(contractABI, contractAddress);
 
 // Server wallet (from Ganache)
@@ -46,6 +46,48 @@ app.post("/vote", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+
+// Create election and add candidates
+app.post("/create-election-and-add-candidates", async (req, res) => {
+  const { name, startDate, endDate, domainFilter,email, candidateNames, candidatePositions, candidatePlatforms, candidateCdns, candidatePartylists } = req.body;
+
+  try {
+    const tx = votingContract.methods.createElectionAndAddCandidates(
+      name,
+      startDate,
+      endDate,
+      domainFilter,
+      email,
+      candidateNames,
+      candidatePositions,
+      candidatePlatforms,
+      candidateCdns,
+      candidatePartylists
+    );
+    const gas = await tx.estimateGas({ from: serverAccount });
+    const data = tx.encodeABI();
+
+    const signedTx = await web3.eth.accounts.signTransaction(
+      {
+        to: contractAddress,
+        data,
+        gas,
+      },
+      privateKey
+    );
+
+    const receipt = await web3.eth.sendSignedTransaction(
+      signedTx.rawTransaction
+    );
+
+    res.json({ status: "success", txHash: receipt.transactionHash });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 
 // Create election
@@ -83,6 +125,15 @@ app.post("/create-election", async (req, res) => {
   }
 });
 
+app.post("/get-election-count", async (req, res) => {
+  try {
+    const electionCount = await votingContract.methods.electionCount().call();
+    res.json({ electionCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Add multiple candidates
 app.post("/add-candidates", async (req, res) => {
@@ -94,7 +145,8 @@ app.post("/add-candidates", async (req, res) => {
       candidates.map(candidate => candidate.name),
       candidates.map(candidate => candidate.position),
       candidates.map(candidate => candidate.platform),
-      candidates.map(candidate => candidate.cdn)
+      candidates.map(candidate => candidate.cdn),
+      candidates.map(candidate => candidate.partylist)
     );
     const gas = await tx.estimateGas({ from: serverAccount });
     const data = tx.encodeABI();

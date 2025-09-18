@@ -1,24 +1,43 @@
-import { Component } from '@angular/core';
+import { Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-
-
+import { BackendService } from '../../../services/backend.service';
+import { AuthService } from '../../../services/auth.service';
+import { FirebaseService } from '../../../services/firebase.service';
+import { FileUploaderService } from '../../../services/file-uploader.service';
 
 @Component({
   selector: 'app-election',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './election.component.html',
-  styleUrl: './election.component.css'
+  styleUrl: './election.component.css',
 })
 export class ElectionComponent {
 
+  email: string | any;
+  ngOnInit() {
+    this.authService.authState$.subscribe(user => {
+      if (user) {
+        this.email = user.email;
+      }
+    });
+  }
+
+  
+
   electionForm: FormGroup;
 
-  constructor(private readonly formBuilder: FormBuilder) {
+  constructor(
+    private readonly formBuilder: FormBuilder, 
+    private backendService: BackendService, 
+    private authService: AuthService, 
+    private firebaseService: FirebaseService, 
+    private fileUploaderService: FileUploaderService
+  ) {
     this.electionForm = this.formBuilder.group({
       name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
-      chainId: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      domainFilter: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       start: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       end: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       partylists: this.formBuilder.array<FormGroup>([]),
@@ -56,7 +75,7 @@ export class ElectionComponent {
       fullName: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       position: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       platform: new FormControl<string>('', { nonNullable: true }),
-      imageDataUrl: new FormControl<string>('', { nonNullable: true }),
+      imageDataUrl: new FormControl<string>('', { nonNullable: true })
     });
     this.candidatesAt(partyIndex).push(candidateGroup);
   }
@@ -65,32 +84,82 @@ export class ElectionComponent {
     this.candidatesAt(partyIndex).removeAt(candidateIndex);
   }
 
+  cdnUrl: string | null = null;
   async onImageSelected(event: Event, partyIndex: number, candidateIndex: number): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-    const file = input.files[0];
-    const dataUrl = await this.readFileAsDataUrl(file);
-    this.candidatesAt(partyIndex).at(candidateIndex).get('imageDataUrl')!.setValue(dataUrl);
-  }
+  const input = event.target as HTMLInputElement;
+  if (!input.files?.length) return;
 
-  private readFileAsDataUrl(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = (e) => reject(e);
-      reader.readAsDataURL(file);
+  const file = input.files[0];
+  const candidate = this.candidatesAt(partyIndex).at(candidateIndex);
+
+  // Delete old image if exists
+  const oldUrl = candidate.get('imageDataUrl')?.value;
+  if (oldUrl) {
+    const uuid = oldUrl.split('/')[3]; // extract UUID from https://ucarecdn.com/<uuid>/
+    this.fileUploaderService.deleteFile(uuid).subscribe(() => {
+      console.log('Deleted old image:', uuid);
     });
   }
 
-  submit(): void {
+  // Upload new one
+  this.fileUploaderService.uploadFile(file).subscribe((res: any) => {
+    const cdnUrl = `https://ucarecdn.com/${res.file}/-/preview/150x150/`;
+    candidate.get('imageDataUrl')!.setValue(cdnUrl);
+    console.log('Uploaded new image:', cdnUrl);
+  });
+}
+
+
+  async submit() {
     if (this.electionForm.invalid) {
       this.electionForm.markAllAsTouched();
       return;
     }
+
     const payload = this.electionForm.getRawValue();
-    // TODO: integrate with backend / smart contracts. For now, log structure.
-    // eslint-disable-next-line no-console
-    console.log('Create election payload', payload);
-    alert('Election created (mock). Check console for payload.');
+
+    // 1. Create election first
+    const electionLength = await this.backendService.getElectionCount();
+    console.log('Election length:', electionLength);
+    const electionRes = await this.backendService.createElection(
+      payload.name,
+      payload.start,
+      payload.end,
+      payload.domainFilter,
+      this.email
+    );
+
+    // 2. Collect candidates across all parties
+    let allCandidates: any[] = [];
+
+    for (let i = 0; i < payload.partylists.length; i++) {
+      const party = payload.partylists[i];
+      const candidates = party.candidates || [];
+
+      const mapped = candidates.map((c: any) => ({
+        name: c.fullName,
+        position: c.position,
+        platform: c.platform,
+        cdn: c.imageDataUrl,
+        partylist: party.name
+      }));
+
+      allCandidates = [...allCandidates, ...mapped];
+    }
+
+    // 3. Send them to backend
+    if (allCandidates.length > 0) {
+      await this.backendService.addCandidates(electionLength, allCandidates);
+    }
+
+    // 4. Save history
+    this.firebaseService.addToHistory(this.email,'Election Created', electionRes.txHash, new Date());
+    alert('Election created successfully ✅');
+
+    // 5. Reset form
+    this.electionForm.reset();
+    this.partylists.clear();
+    this.addParty();
   }
+
 }

@@ -35,14 +35,32 @@ contract Voting {
     mapping(uint256 => Election) public elections;
     uint256 public electionCount;
 
-    function listPositions(string memory email, string[] memory positions) public {
-        this.positions[email] = positions;
+    function listPositions(string memory email, string[] memory _positions) public {
+        positions[email] = _positions;
     }
 
     
     function getPositions(string memory email) public view returns (string[] memory) {
         return positions[email];
     }
+
+
+    function createElectionAndAddCandidates(string memory _name, string memory _startDate, string memory _endDate, string memory _domainFilter, string memory _email, string[] memory _names, string[] memory _positions, string[] memory _platforms, string[] memory _cdns, string[] memory _partylists) public {
+        electionCount++;
+        elections[electionCount].name = _name;
+        elections[electionCount].isOpen = true;
+        elections[electionCount].candidatesCount = _names.length;
+        elections[electionCount].startDate = _startDate;
+        elections[electionCount].endDate = _endDate;
+        elections[electionCount].domainFilter = _domainFilter;
+        elections[electionCount].hasVoted[_email] = false;
+        ownedElections[_email].push(CreatedElections(electionCount, _name));
+        for (uint256 i = 0; i < _names.length; i++) {
+            elections[electionCount].candidates[i+1] = Candidate(_names[i], _partylists[i], _positions[i], _platforms[i], _cdns[i], 0);
+        }
+    }
+
+
 
     function createElection(string memory _name, string memory _startDate, string memory _endDate, string memory _domainFilter, string memory _email) public {
         electionCount++;
@@ -56,6 +74,9 @@ contract Voting {
         ownedElections[_email].push(CreatedElections(electionCount, _name));
     }
 
+    function getElectionCount() public view returns (uint256) {
+        return electionCount;
+    }
     
     function updateElection(uint256 _electionId, string memory _title, string memory _startDate, string memory _endDate, string memory _domainFilter) public {
         Election storage e = elections[_electionId];
@@ -123,8 +144,8 @@ contract Voting {
     }
 
     
-    function addCandidates(uint256 _electionId, string[] memory _names, string[] memory _positions, string[] memory _platforms, string[] memory _cdns, string memory _partylists) public {
-        require(_names.length == _positions.length && _positions.length == _platforms.length && _platforms.length == _cdns.length && _cdns.length == _partylist.length, "Input arrays must have same length");
+    function addCandidates(uint256 _electionId, string[] memory _names, string[] memory _positions, string[] memory _platforms, string[] memory _cdns, string[] memory _partylists) public {
+        require(_names.length == _positions.length && _positions.length == _platforms.length && _platforms.length == _cdns.length && _cdns.length == _partylists.length, "Input arrays must have same length");
         Election storage e = elections[_electionId];
         for (uint256 i = 0; i < _names.length; i++) {
             e.candidatesCount++;
@@ -137,18 +158,18 @@ contract Voting {
     function getElectionCandidates(uint256 _electionId) public view returns (string[] memory, string[] memory, string[] memory, string[] memory, string[] memory) {
         Election storage e = elections[_electionId];
         string[] memory names = new string[](e.candidatesCount);
-        string[] memory positions = new string[](e.candidatesCount);
+        string[] memory _positions = new string[](e.candidatesCount);
         string[] memory platforms = new string[](e.candidatesCount);
         string[] memory cdns = new string[](e.candidatesCount);
         string[] memory partylists = new string[](e.candidatesCount);
         for (uint256 i = 1; i <= e.candidatesCount; i++) {
             names[i-1] = e.candidates[i].name;
-            positions[i-1] = e.candidates[i].position;
+            _positions[i-1] = e.candidates[i].position;
             platforms[i-1] = e.candidates[i].platform;
             cdns[i-1] = e.candidates[i].cdn;
             partylists[i-1] = e.candidates[i].partylist;
         }
-        return (names, positions, platforms, cdns, partylists);
+        return (names, _positions, platforms, cdns, partylists);
     }
 
     
