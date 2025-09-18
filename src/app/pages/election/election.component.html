@@ -25,6 +25,26 @@
         <input type="datetime-local" class="input" formControlName="end" />
       </div>
 
+
+      <!-- Position Presets Section -->
+      <div class="card" style="margin-top:1rem;">
+        <div class="card-header">
+          <div class="card-title">Position Presets</div>
+          <button class="button ghost" type="button" (click)="addPreset()">Add Preset</button>
+        </div>
+        <div class="card-body">
+          <div formArrayName="positionPresets" class="stack" style="gap: .5rem;">
+            <div *ngFor="let preset of positionPresets.controls; let k = index" [formGroupName]="k" class="preset-row">
+              <input class="input" placeholder="e.g., President" formControlName="name" />
+              <button class="button danger" type="button" (click)="removePreset(k)">Remove</button>
+            </div>
+          </div>
+          <div class="info">Positions are hierarchical (top = highest rank)</div>
+        </div>
+      </div>
+
+
+
       <div style="grid-column: 1 / -1;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-top:.5rem;">
           <div class="card-title">Partylists</div>
@@ -58,10 +78,21 @@
                       <label>Full Name</label>
                       <input class="input" placeholder="e.g., Alice Johnson" formControlName="fullName" />
                     </div>
-                    <div>
+                    <!-- <div>
                       <label>Position</label>
                       <input class="input" placeholder="e.g., President" formControlName="position" />
+                    </div> -->
+                    <div>
+                      <label>Position</label>
+                      <select class="input" formControlName="position">
+                        <option value="" disabled selected>Select position</option>
+                        <option *ngFor="let preset of positionPresets.value" [value]="preset.name">
+                          {{ preset.name }}
+                        </option>
+                      </select>
                     </div>
+
+
                     <div>
                       <label>Image</label>
                       <input type="file" accept="image/*" (change)="onImageSelected($event, i, j)" />

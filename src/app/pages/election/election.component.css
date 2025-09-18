@@ -65,3 +65,21 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+
+
+.preset-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.preset-row .input {
+  flex: 1;
+}
+
+.info {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: .5rem;
+}
