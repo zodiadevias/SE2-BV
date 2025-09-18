@@ -372,7 +372,8 @@ app.post("/get-election-candidate", async (req, res) => {
       position: candidate[1],
       platform: candidate[2],
       cdn: candidate[3],
-      voteCount: candidate[4],
+      partylist: candidate[4],
+      votes: candidate[5],
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
