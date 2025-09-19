@@ -5,7 +5,13 @@
   <form [formGroup]="electionForm" (ngSubmit)="submit()" class="card">
     <div class="card-header">
       <div class="card-title">Create Election</div>
-      <button class="button" type="submit">Create</button>
+      <button 
+        type="submit" 
+        [disabled]="submitting || electionForm.invalid" 
+        class="btn btn-primary button">
+        {{ submitting ? 'Submitting...' : 'Create' }}
+      </button>
+
     </div>
     <div class="card-body grid grid-2">
       <div>

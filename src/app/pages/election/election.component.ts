@@ -132,71 +132,82 @@ export class ElectionComponent {
   reader.readAsDataURL(file);
 }
 
+submitting = false;
 
 
   // 🔹 Submit Form
-  async submit() {
+async submit() {
   if (this.electionForm.invalid) {
     this.electionForm.markAllAsTouched();
     return;
   }
 
-  const payload = this.electionForm.getRawValue();
+  this.submitting = true;
+  this.electionForm.disable(); // disable form fields
 
-  // 1. Create election first
-  const electionLength = await this.backendService.getElectionCount();
-  const electionRes = await this.backendService.createElection(
-    payload.name,
-    payload.start,
-    payload.end,
-    payload.domainFilter,
-    this.email
-  );
+  try {
+    const payload = this.electionForm.getRawValue();
 
-  // 2. Collect candidates
-  let allCandidates: any[] = [];
+    // 1. Create election
+    const electionLength = await this.backendService.getElectionCount();
+    const electionRes = await this.backendService.createElection(
+      payload.name,
+      payload.start,
+      payload.end,
+      payload.domainFilter,
+      this.email
+    );
 
-  for (let i = 0; i < payload.partylists.length; i++) {
-    const party = payload.partylists[i];
-    const candidates = party.candidates || [];
+    // 2. Upload + collect candidates
+    let allCandidates: any[] = [];
 
-    for (let c of candidates) {
-      let cdnUrl = c.imageDataUrl;
+    for (let i = 0; i < payload.partylists.length; i++) {
+      const party = payload.partylists[i];
+      const candidates = party.candidates || [];
 
-      // upload file if exists
-      if (c.file) {
-        const uploadRes: any = await this.fileUploaderService.uploadFile(c.file).toPromise();
-        cdnUrl = `https://ucarecdn.com/${uploadRes.file}/-/preview/150x150/`;
+      for (let c of candidates) {
+        let cdnUrl = c.imageDataUrl;
+
+        if (c.file) {
+          const uploadRes: any = await this.fileUploaderService.uploadFile(c.file).toPromise();
+          cdnUrl = `https://ucarecdn.com/${uploadRes.file}/-/preview/150x150/`;
+        }
+
+        allCandidates.push({
+          name: c.fullName,
+          position: c.position,
+          platform: c.platform,
+          cdn: cdnUrl,
+          partylist: party.name,
+        });
       }
-
-      allCandidates.push({
-        name: c.fullName,
-        position: c.position,
-        platform: c.platform,
-        cdn: cdnUrl,
-        partylist: party.name,
-      });
     }
+
+    if (allCandidates.length > 0) {
+      await this.backendService.addCandidates(electionLength, allCandidates);
+    }
+
+    // 3. Save history
+    this.firebaseService.addToHistory(this.email, 'Election Created', electionRes.txHash, new Date());
+    alert('Election created successfully ✅');
+
+    // 4. Reset
+    this.electionForm.reset();
+    this.partylists.clear();
+    this.positionPresets.clear();
+    this.addParty();
+    this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('President') }));
+    this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Vice President') }));
+    this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Secretary') }));
+  } catch (err) {
+    console.error(err);
+    alert('Something went wrong ❌');
+  } finally {
+    this.submitting = false;
+    this.electionForm.enable(); // re-enable after submit
   }
-
-  // 3. Send candidates to backend
-  if (allCandidates.length > 0) {
-    await this.backendService.addCandidates(electionLength, allCandidates);
-  }
-
-  // 4. Save history
-  this.firebaseService.addToHistory(this.email, 'Election Created', electionRes.txHash, new Date());
-  alert('Election created successfully ✅');
-
-  // 5. Reset form
-  this.electionForm.reset();
-  this.partylists.clear();
-  this.positionPresets.clear();
-  this.addParty();
-  this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('President') }));
-  this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Vice President') }));
-  this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Secretary') }));
 }
+
 
 
   // 🔹 Backend Queries
@@ -213,7 +224,7 @@ export class ElectionComponent {
   }
 
   getCandidate(id: number, candidateId: number) {
-    this.backendService.getElectionCandidate(id, candidateId).then((res: any) => {
+    this.backendService.getElectionCandidate(id-1, candidateId).then((res: any) => {
       this.candidate = res;
       console.log(this.candidate);
     });

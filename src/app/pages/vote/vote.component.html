@@ -1,55 +1,114 @@
-<div class="container grid grid-2">
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Partylists</div>
-    </div>
-    <div class="card-body">
-      <div class="list">
-        <div
-          class="list-item"
-          *ngFor="let party of partylists"
-          (click)="selectParty(party.id)"
-          [ngClass]="{ active: party.id === selectedPartyId }"
-          style="cursor:pointer;"
-        >
-          <div class="list-item-title">{{ party.name }}</div>
-          <div class="list-item-subtitle">{{ party.description }}</div>
-        </div>
+@if(voting) {
+
+  <button class="button muted" style="margin-bottom:1rem;" (click)="toggleVote()">Back</button>
+
+  <div class="container" style="margin-bottom:1rem;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">{{ election[0] }}</div>
+      </div>
+      <div class="card-body">
+        <div class="muted">Election ID: {{ electionId }}</div>
+        <div class="muted">Start Date: {{ election[3] }}</div>
+        <div class="muted">End Date: {{ election[4] }}</div>
+        <div class="muted">Allowed Domains: {{ election[5] }}</div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">Candidates</div>
-      <span class="badge" *ngIf="!selectedPartyId">Pick a party</span>
-      <span class="badge success" *ngIf="selectedPartyId">Ready</span>
-    </div>
-    <div class="card-body">
-      <div *ngIf="!selectedPartyId" class="muted">Select a partylist to view candidates.</div>
-      <div *ngIf="selectedParty">
+  <div class="container grid grid-2">
+    <!-- Positions -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Positions</div>
+      </div>
+      <div class="card-body">
         <div class="list">
           <div
             class="list-item"
-            *ngFor="let cand of visibleCandidates"
-            (click)="selectCandidate(cand.id)"
-            [ngClass]="{ active: cand.id === selectedCandidateId }"
+            *ngFor="let pos of candidatesByPosition"
+            (click)="selectPosition(pos.id)"
+            [ngClass]="{ active: pos.id === selectedPositionId }"
             style="cursor:pointer;"
           >
-            <div class="list-item-title">{{ cand.name }}</div>
-            <div class="list-item-subtitle">{{ cand.role }}</div>
+            <div class="list-item-title">{{ pos.name }}</div>
+            <div class="list-item-subtitle">{{ pos.description }}</div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div style="margin-top:1rem; display:flex; gap:.5rem; align-items:center;">
-        <button class="button" [disabled]="!selectedCandidateId" (click)="castVote()">Cast Vote</button>
-        <span class="muted" *ngIf="!selectedCandidateId">Choose a candidate to enable voting</span>
+    <!-- Candidates for selected position -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Candidates</div>
+        <span class="badge" *ngIf="!selectedPositionId">Pick a position</span>
+        <span class="badge success" *ngIf="selectedPositionId">Ready</span>
       </div>
+      <div class="card-body">
+        <div *ngIf="!selectedPositionId" class="muted">
+          Select a position to view candidates.
+        </div>
 
-      <div class="alert success" *ngIf="lastVotedMessage" style="margin-top:1rem;">
-        {{ lastVotedMessage }}
+        <div *ngIf="selectedPosition">
+          <div class="list">
+            <div
+              class="list-item"
+              *ngFor="let cand of visibleCandidates"
+              (click)="selectCandidate(selectedPosition.id, cand.id)"
+              [ngClass]="{ active: selectedCandidates[selectedPosition.id] === cand.id }"
+              style="cursor:pointer;"
+            >
+              <div class="list-item-title">{{ cand.name }}</div>
+              <div class="list-item-subtitle">
+                {{ cand.partylist }} — {{ cand.platform }}
+              </div>
+              <img
+                *ngIf="cand.cdn"
+                [src]="cand.cdn"
+                alt="{{ cand.name }}"
+                style="max-width: 80px; border-radius: 6px; margin-top: .5rem;"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- Finalize votes -->
+  <div class="container" style="margin-top:1rem;">
+    <button class="button success" (click)="submitVotes()">Submit All Votes</button>
+    <div class="alert success" *ngIf="lastVotedMessage" style="margin-top:1rem; white-space: pre-line;">
+      {{ lastVotedMessage }}
+    </div>
+  </div>
+}
+
+@if(!voting) {
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Enter Election ID</div>
+      </div>
+      <div class="card-body">
+        <form (ngSubmit)="toggleVote()">
+          <div class="form-group">
+            <label for="electionId">Election ID</label>
+            <input
+              type="text"
+              id="electionId"
+              name="electionId"
+              [(ngModel)]="electionId"
+              class="input form-control"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <button type="submit" class="button">Enter</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}

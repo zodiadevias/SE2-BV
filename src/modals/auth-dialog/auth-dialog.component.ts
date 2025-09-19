@@ -104,6 +104,7 @@ async submit() {
     try {
       await this.authService.login(email!, password!);
       this.dialogRef.close();
+      location.reload();
     } catch (err: any) {
       this.errorMessage = err.message;
     }

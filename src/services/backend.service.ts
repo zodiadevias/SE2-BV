@@ -163,5 +163,20 @@ export class BackendService {
 
   
 
+  async getElectionCandidates(electionId: number) {
+    const response = await axios.post(`${this.apiUrl}/get-election-candidates`, {
+      electionId
+    });
+    return response.data;
+  }
+
+
+  async vote(electionId: number, candidateIds: number[]) {
+    const response = await axios.post(`${this.apiUrl}/vote`, {
+      electionId,
+      candidateIds
+    });
+    return response.data;
+  }
 
 }

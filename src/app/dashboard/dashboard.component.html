@@ -49,6 +49,35 @@
 }
 
 @if(role==='voter'){
-  
+  <div class="container grid grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Upcoming Elections</div><span class="badge success">Live</span></div>
+      <div class="card-body">
+        <div class="grid grid-3">
+          <div class="card" *ngFor="let i of [1,2,3,4,5,6]">
+            <div class="card-header"><div class="card-title">Election {{ i }}</div></div>
+            <div class="card-body">
+              <p>Placeholder description of an upcoming election.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Elections You Have Voted In</div><span class="badge success">Updated</span></div>
+      <div class="card-body">
+        <div class="grid grid-3">
+          <div class="card" *ngFor="let item of history$">
+            <ng-container *ngIf="item.email === email && item.name === 'Voted in election'">
+              <div class="card-header"><div class="card-title">Election {{ item.electionId }}</div></div>
+              <div class="card-body">
+                <p>Placeholder description of an election you have voted in.</p>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 }
 
