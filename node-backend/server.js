@@ -11,7 +11,7 @@ const web3 = new Web3("http://192.168.100.12:7545");
 
 // Replace with your deployed contract ABI & address
 const contractABI = require("./VotingABI.json");
-const contractAddress = "0xd3507Ec6b45273378acEB1C3243198C74798ea24"; // deployed contract
+const contractAddress = "0x9d0aD88C45cAF81EF88Cba4E945c4a4F9cD3639A"; // deployed contract
 const votingContract = new web3.eth.Contract(contractABI, contractAddress);
 
 // Server wallet (from Ganache)

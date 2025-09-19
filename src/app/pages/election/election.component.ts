@@ -47,8 +47,10 @@ export class ElectionComponent {
     this.authService.authState$.subscribe(user => {
       if (user) {
         this.email = user.email;
+        this.getOwnedElections();
       }
     });
+    
   }
 
   // 🔹 Accessors
@@ -210,4 +212,21 @@ export class ElectionComponent {
       console.log(this.candidate);
     });
   }
+
+  ownedElections: any | null = null;
+  getOwnedElections() {
+    this.backendService.getOwnedElections(this.email).then((res: any) => {
+      this.ownedElections = res;
+      console.log(this.ownedElections);
+    });
+  }
+
+
+
+
+
+
+
+
 }
+

@@ -85,6 +85,26 @@
           "internalType": "string",
           "name": "electionName",
           "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "isOpen",
+          "type": "bool"
+        },
+        {
+          "internalType": "string",
+          "name": "startDate",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "endDate",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "domainFilter",
+          "type": "string"
         }
       ],
       "payable": false,
@@ -235,6 +255,11 @@
           "internalType": "string",
           "name": "_domainFilter",
           "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_email",
+          "type": "string"
         }
       ],
       "name": "updateElection",
@@ -264,6 +289,26 @@
             {
               "internalType": "string",
               "name": "electionName",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isOpen",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "startDate",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "endDate",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "domainFilter",
               "type": "string"
             }
           ],

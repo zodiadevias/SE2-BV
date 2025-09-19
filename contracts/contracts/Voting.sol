@@ -8,6 +8,10 @@ contract Voting {
     struct CreatedElections {
         uint256 electionId;
         string electionName;
+        bool isOpen;
+        string startDate;
+        string endDate;
+        string domainFilter;
     }
 
     mapping (string => string[]) public positions;
@@ -45,22 +49,6 @@ contract Voting {
     }
 
 
-    function createElectionAndAddCandidates(string memory _name, string memory _startDate, string memory _endDate, string memory _domainFilter, string memory _email, string[] memory _names, string[] memory _positions, string[] memory _platforms, string[] memory _cdns, string[] memory _partylists) public {
-        electionCount++;
-        elections[electionCount].name = _name;
-        elections[electionCount].isOpen = true;
-        elections[electionCount].candidatesCount = _names.length;
-        elections[electionCount].startDate = _startDate;
-        elections[electionCount].endDate = _endDate;
-        elections[electionCount].domainFilter = _domainFilter;
-        elections[electionCount].hasVoted[_email] = false;
-        ownedElections[_email].push(CreatedElections(electionCount, _name));
-        for (uint256 i = 0; i < _names.length; i++) {
-            elections[electionCount].candidates[i+1] = Candidate(_names[i], _partylists[i], _positions[i], _platforms[i], _cdns[i], 0);
-        }
-    }
-
-
 
     function createElection(string memory _name, string memory _startDate, string memory _endDate, string memory _domainFilter, string memory _email) public {
         electionCount++;
@@ -71,19 +59,30 @@ contract Voting {
         elections[electionCount].endDate = _endDate;
         elections[electionCount].domainFilter = _domainFilter;
         elections[electionCount].hasVoted[_email] = false;
-        ownedElections[_email].push(CreatedElections(electionCount, _name));
+        ownedElections[_email].push(CreatedElections(electionCount, _name, true, _startDate, _endDate, _domainFilter));
     }
 
     function getElectionCount() public view returns (uint256) {
         return electionCount;
     }
     
-    function updateElection(uint256 _electionId, string memory _title, string memory _startDate, string memory _endDate, string memory _domainFilter) public {
+    function updateElection(uint256 _electionId, string memory _title, string memory _startDate, string memory _endDate, string memory _domainFilter, string memory _email) public {
         Election storage e = elections[_electionId];
         e.name = _title;
         e.startDate = _startDate;
         e.endDate = _endDate;
         e.domainFilter = _domainFilter;
+        
+         CreatedElections[] storage ownedElectionsList = ownedElections[_email];
+        for (uint256 i = 0; i < ownedElectionsList.length; i++) {
+        if (ownedElectionsList[i].electionId == _electionId) {
+            ownedElectionsList[i].electionName = _title;
+            ownedElectionsList[i].startDate = _startDate;
+            ownedElectionsList[i].endDate = _endDate;
+            ownedElectionsList[i].domainFilter = _domainFilter;
+            break;
+        }
+    }
     }
 
     

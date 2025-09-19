@@ -118,24 +118,28 @@
   <div class="card" style="margin-top:1rem;">
     <div class="card-header">
       <div class="card-title">Elections</div>
-      <button class="button ghost" type="button">Refresh</button>
+      <button class="button ghost" type="button" (click)="getOwnedElections()">Refresh</button>
     </div>
     <div class="card-body" style="overflow:auto;">
       <table class="table">
         <thead>
           <tr>
             <th>Name</th>
-            <th>Window</th>
+            <th>Election ID</th>
+            <th>Start Date</th>
+            <th>End Date</th>
             <th>Status</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Board Election 2025</td>
-            <td>Apr 1 → Apr 4</td>
-            <td><span class="badge success">Scheduled</span></td>
-            <td style="text-align:right;"><button class="button" type="button">Open</button></td>
+          <tr *ngFor="let e of ownedElections; let i = index">
+            <td>{{ e[1] }}</td>
+            <td>{{ e[0] }}</td>
+            <td>{{ e[3] | date:'dd/MM/yyyy, h:mm a' }}</td>
+            <td>{{ e[4] | date:'dd/MM/yyyy, h:mm a'}}</td>
+            <td><span class="badge success" *ngIf="e[2]==true">Active</span><span class="badge" *ngIf="e[2]==false">Ended</span></td>
+            <td style="text-align:right;"><button class="button" type="button" >Open</button></td>
           </tr>
         </tbody>
       </table>
@@ -148,4 +152,5 @@
   <input type="text" [(ngModel)]="id">
   <input type="text" [(ngModel)]="candidateId">
   <button (click)="getCandidate(id, candidateId)">Go</button>
+  <button (click)="getOwnedElections()">check owned elections</button>
 </div>
