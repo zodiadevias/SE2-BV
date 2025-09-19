@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, getDoc , collection, collectionData} from '@angular/fire/firestore';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -25,5 +25,12 @@ export class FirebaseService {
       this.historySubject.next([...this.historySubject.getValue(), data]);
     });
   }
+
+
+   getHistory(): Observable<any[]> {
+    const historyRef = collection(this.firestore, 'history');
+    return collectionData(historyRef, { idField: 'id' }) as Observable<any[]>;
+  }
+
 
 }

@@ -98,100 +98,106 @@ export class ElectionComponent {
 
   // 🔹 Candidate Controls
   addCandidate(partyIndex: number): void {
-    const candidateGroup = this.formBuilder.group({
-      fullName: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
-      position: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
-      platform: new FormControl<string>('', { nonNullable: true }),
-      imageDataUrl: new FormControl<string>('', { nonNullable: true }),
-    });
-    this.candidatesAt(partyIndex).push(candidateGroup);
-  }
+  const candidateGroup = this.formBuilder.group({
+    fullName: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+    position: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+    platform: new FormControl<string>('', { nonNullable: true }),
+    imageDataUrl: new FormControl<string>('', { nonNullable: true }), // CDN URL (after upload)
+    file: new FormControl<File | null>(null), // Raw file (before upload)
+  });
+  this.candidatesAt(partyIndex).push(candidateGroup);
+}
+
 
   removeCandidate(partyIndex: number, candidateIndex: number): void {
     this.candidatesAt(partyIndex).removeAt(candidateIndex);
   }
 
   // 🔹 File Upload
-  async onImageSelected(event: Event, partyIndex: number, candidateIndex: number): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (!input.files?.length) return;
+  onImageSelected(event: Event, partyIndex: number, candidateIndex: number): void {
+  const input = event.target as HTMLInputElement;
+  if (!input.files?.length) return;
 
-    const file = input.files[0];
-    const candidate = this.candidatesAt(partyIndex).at(candidateIndex);
+  const file = input.files[0];
+  const candidate = this.candidatesAt(partyIndex).at(candidateIndex);
 
-    // Delete old image if exists
-    const oldUrl = candidate.get('imageDataUrl')?.value;
-    if (oldUrl) {
-      const uuid = oldUrl.split('/')[3]; // extract UUID from https://ucarecdn.com/<uuid>/
-      this.fileUploaderService.deleteFile(uuid).subscribe(() => {
-        console.log('Deleted old image:', uuid);
-      });
-    }
+  // store the file for later upload
+  candidate.get('file')!.setValue(file);
 
-    // Upload new one
-    this.fileUploaderService.uploadFile(file).subscribe((res: any) => {
-      const cdnUrl = `https://ucarecdn.com/${res.file}/-/preview/150x150/`;
-      candidate.get('imageDataUrl')!.setValue(cdnUrl);
-      console.log('Uploaded new image:', cdnUrl);
-    });
-  }
+  // generate a local preview
+  const reader = new FileReader();
+  reader.onload = () => {
+    candidate.get('imageDataUrl')!.setValue(reader.result as string);
+  };
+  reader.readAsDataURL(file);
+}
+
+
 
   // 🔹 Submit Form
   async submit() {
-    if (this.electionForm.invalid) {
-      this.electionForm.markAllAsTouched();
-      return;
-    }
+  if (this.electionForm.invalid) {
+    this.electionForm.markAllAsTouched();
+    return;
+  }
 
-    const payload = this.electionForm.getRawValue();
+  const payload = this.electionForm.getRawValue();
 
-    // 1. Create election first
-    const electionLength = await this.backendService.getElectionCount();
-    const electionRes = await this.backendService.createElection(
-      payload.name,
-      payload.start,
-      payload.end,
-      payload.domainFilter,
-      this.email
-    );
+  // 1. Create election first
+  const electionLength = await this.backendService.getElectionCount();
+  const electionRes = await this.backendService.createElection(
+    payload.name,
+    payload.start,
+    payload.end,
+    payload.domainFilter,
+    this.email
+  );
 
-    // 2. Collect candidates
-    let allCandidates: any[] = [];
+  // 2. Collect candidates
+  let allCandidates: any[] = [];
 
-    for (let i = 0; i < payload.partylists.length; i++) {
-      const party = payload.partylists[i];
-      const candidates = party.candidates || [];
+  for (let i = 0; i < payload.partylists.length; i++) {
+    const party = payload.partylists[i];
+    const candidates = party.candidates || [];
 
-      const mapped = candidates.map((c: any) => ({
+    for (let c of candidates) {
+      let cdnUrl = c.imageDataUrl;
+
+      // upload file if exists
+      if (c.file) {
+        const uploadRes: any = await this.fileUploaderService.uploadFile(c.file).toPromise();
+        cdnUrl = `https://ucarecdn.com/${uploadRes.file}/-/preview/150x150/`;
+      }
+
+      allCandidates.push({
         name: c.fullName,
         position: c.position,
         platform: c.platform,
-        cdn: c.imageDataUrl,
+        cdn: cdnUrl,
         partylist: party.name,
-      }));
-
-      allCandidates = [...allCandidates, ...mapped];
+      });
     }
-
-    // 3. Send candidates to backend
-    if (allCandidates.length > 0) {
-      await this.backendService.addCandidates(electionLength, allCandidates);
-    }
-
-    // 4. Save history
-    this.firebaseService.addToHistory(this.email, 'Election Created', electionRes.txHash, new Date());
-    alert('Election created successfully ✅');
-
-    // 5. Reset form
-    this.electionForm.reset();
-    this.partylists.clear();
-    this.positionPresets.clear();
-    // Add defaults again
-    this.addParty();
-    this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('President') }));
-    this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Vice President') }));
-    this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Secretary') }));
   }
+
+  // 3. Send candidates to backend
+  if (allCandidates.length > 0) {
+    await this.backendService.addCandidates(electionLength, allCandidates);
+  }
+
+  // 4. Save history
+  this.firebaseService.addToHistory(this.email, 'Election Created', electionRes.txHash, new Date());
+  alert('Election created successfully ✅');
+
+  // 5. Reset form
+  this.electionForm.reset();
+  this.partylists.clear();
+  this.positionPresets.clear();
+  this.addParty();
+  this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('President') }));
+  this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Vice President') }));
+  this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Secretary') }));
+}
+
 
   // 🔹 Backend Queries
   id: any;

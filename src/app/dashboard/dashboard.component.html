@@ -26,28 +26,22 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Time</th>
+          <th>Date</th>
           <th>Event</th>
-          <th>Details</th>
+          <th>Tx Hash</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>12:21</td>
-          <td>Ballot Cast</td>
-          <td>TX 0x8a1...d3 confirmed on-chain</td>
-        </tr>
-        <tr>
-          <td>11:58</td>
-          <td>Voter Registered</td>
-          <td>New voter added to registry</td>
-        </tr>
-        <tr>
-          <td>10:42</td>
-          <td>Election Created</td>
-          <td>Board Election 2025 initialized</td>
-        </tr>
-      </tbody>
+      
+        <tbody>
+          <tr *ngFor="let item of history$">
+            <ng-container *ngIf="item.email === email">
+              <td>{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.txHash }}</td>
+            </ng-container>
+          </tr>
+        </tbody>
+      
     </table>
   </div>
 </div>
