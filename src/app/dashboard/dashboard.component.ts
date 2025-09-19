@@ -14,6 +14,7 @@ export class DashboardComponent {
 
   history$: any[] = [];
   email: any;
+  role : any;
   constructor(public firebaseService: FirebaseService, public authService: AuthService) {}
 
   ngOnInit() {
@@ -26,7 +27,17 @@ export class DashboardComponent {
         this.email = user.email;
       }
     });
+
+    this.authService.role$.subscribe(role => {
+      if (role) {
+        this.role = role;
+      }
+    });
   }
+
+
+  
+  
 
 
 
