@@ -34,7 +34,7 @@
         </thead>
         
           <tbody>
-            <tr *ngFor="let item of history$">
+            <tr *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
               <ng-container *ngIf="item.email === email">
                 <td>{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
                 <td>{{ item.name }}</td>
@@ -67,7 +67,7 @@
       <div class="card-header"><div class="card-title">Elections You Have Voted In</div><span class="badge success">Updated</span></div>
       <div class="card-body">
         <div class="grid grid-3">
-          <div class="card" *ngFor="let item of history$">
+          <div class="card" *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
             <ng-container *ngIf="item.email === email && item.name === 'Voted in election'">
               <div class="card-header"><div class="card-title">Election {{ item.electionId }}</div></div>
               <div class="card-body">

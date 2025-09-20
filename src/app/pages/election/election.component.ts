@@ -136,9 +136,11 @@ submitting = false;
 
 
   // 🔹 Submit Form
+// replace your existing submit() with this
 async submit() {
   if (this.electionForm.invalid) {
     this.electionForm.markAllAsTouched();
+    console.log('Invalid form');
     return;
   }
 
@@ -148,9 +150,8 @@ async submit() {
   try {
     const payload = this.electionForm.getRawValue();
 
-    // 1. Create election
-    const electionLength = await this.backendService.getElectionCount();
-    const electionRes = await this.backendService.createElection(
+    // 1. Create election (use the returned electionId)
+    const electionRes: any = await this.backendService.createElection(
       payload.name,
       payload.start,
       payload.end,
@@ -158,18 +159,29 @@ async submit() {
       this.email
     );
 
+    // backend might return { electionId } or raw number — handle both
+    const createdElectionId = Number(
+      electionRes?.electionId ?? electionRes ?? NaN
+    );
+    if (!createdElectionId || Number.isNaN(createdElectionId)) {
+      throw new Error('Unable to determine created electionId from response: ' + JSON.stringify(electionRes));
+    }
+
     // 2. Upload + collect candidates
-    let allCandidates: any[] = [];
+    const allCandidates: any[] = [];
 
     for (let i = 0; i < payload.partylists.length; i++) {
       const party = payload.partylists[i];
       const candidates = party.candidates || [];
 
-      for (let c of candidates) {
+      for (const c of candidates) {
         let cdnUrl = c.imageDataUrl;
 
         if (c.file) {
+          // if fileUploaderService returns an Observable, convert safely
+          // adjust to your implementation (toPromise is deprecated in newer RxJS)
           const uploadRes: any = await this.fileUploaderService.uploadFile(c.file).toPromise();
+          // adapt this line if uploadRes shape is different
           cdnUrl = `https://ucarecdn.com/${uploadRes.file}/-/preview/150x150/`;
         }
 
@@ -183,15 +195,17 @@ async submit() {
       }
     }
 
+    // 3. Add candidates to the newly created election (use createdElectionId)
     if (allCandidates.length > 0) {
-      await this.backendService.addCandidates(electionLength, allCandidates);
+      await this.backendService.addCandidates(createdElectionId, allCandidates);
     }
 
-    // 3. Save history
+    // 4. Save history (include electionId for clarity)
     this.firebaseService.addToHistory(this.email, 'Election Created', electionRes.txHash, new Date());
+
     alert('Election created successfully ✅');
 
-    // 4. Reset
+    // 5. Reset form
     this.electionForm.reset();
     this.partylists.clear();
     this.positionPresets.clear();
@@ -199,14 +213,15 @@ async submit() {
     this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('President') }));
     this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Vice President') }));
     this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Secretary') }));
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    alert('Something went wrong ❌');
+    alert('Something went wrong ❌ — ' + (err?.message ?? err));
   } finally {
     this.submitting = false;
     this.electionForm.enable(); // re-enable after submit
   }
 }
+
 
 
 
@@ -216,19 +231,22 @@ async submit() {
   electionDetails: any | null = null;
   candidate: any | null = null;
 
-  getElectionDetails(id: number) {
-    this.backendService.getElectionDetails(id).then((res: any) => {
-      this.electionDetails = res;
-      console.log(this.electionDetails);
-    });
-  }
+  // 🔹 Get details of election
+getElectionDetails(electionId: number) {
+  this.backendService.getElectionDetails(electionId).then((res: any) => {
+    this.electionDetails = res;
+    console.log("Election details:", this.electionDetails);
+  });
+}
 
-  getCandidate(id: number, candidateId: number) {
-    this.backendService.getElectionCandidate(id-1, candidateId).then((res: any) => {
-      this.candidate = res;
-      console.log(this.candidate);
-    });
-  }
+// 🔹 Get single candidate
+getCandidate(electionId: number, candidateId: number) {
+  this.backendService.getElectionCandidate(electionId, candidateId).then((res: any) => {
+    this.candidate = res;
+    console.log("Candidate:", this.candidate);
+  });
+}
+
 
   ownedElections: any | null = null;
   getOwnedElections() {

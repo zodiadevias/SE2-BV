@@ -1,31 +1,94 @@
-<div class="container card">
-  <div class="card-header"><div class="card-title">Election Results</div></div>
-  <div class="card-body" style="overflow:auto;">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Candidate</th>
-          <th>Votes</th>
-          <th>Percentage</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Alice</td>
-          <td>542</td>
-          <td>42.3%</td>
-        </tr>
-        <tr>
-          <td>Bob</td>
-          <td>469</td>
-          <td>36.6%</td>
-        </tr>
-        <tr>
-          <td>Carol</td>
-          <td>271</td>
-          <td>21.1%</td>
-        </tr>
-      </tbody>
-    </table>
+<div *ngIf="toggle">
+  <button class="button muted" style="margin-bottom:1rem;" (click)="toggleResult()">Back</button>
+
+  <!-- All candidates results -->
+  <div class="container card">
+    <div class="card-header">
+      <div class="card-title">Election Results</div>
+    </div>
+    <div class="card-body" style="overflow:auto;">
+      <table class="table" *ngIf="election?.results?.length ?? 0 > 0; else noResults">
+
+        <thead>
+          <tr>
+            <th>Candidate</th>
+            <th>Position</th>
+            <th>Party</th>
+            <th>Votes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let candidate of election.results">
+            <td>{{ candidate.name }}</td>
+            <td>{{ candidate.position }}</td>
+            <td>{{ candidate.partylist }}</td>
+            <td>{{ candidate.votes }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ng-template #noResults>
+        <p>No results found for this election.</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Winners per position -->
+  <div class="container card" style="margin-top:1rem;">
+    <div class="card-header">
+      <div class="card-title">Winners</div>
+    </div>
+    <div class="card-body" style="overflow:auto;">
+      <table class="table" *ngIf="election?.winners?.length ?? 0 > 0; else noResults">
+
+        <thead>
+          <tr>
+            <th>Candidate</th>
+            <th>Position</th>
+            <th>Party</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let winner of election.winners">
+            <td>{{ winner.name }}</td>
+            <td>{{ winner.position }}</td>
+            <td>{{ winner.partylist }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ng-template #noWinners>
+        <p>No winners found for this election.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<!-- Election ID input form -->
+<div *ngIf="!toggle">
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Enter Election ID</div>
+      </div>
+      <div class="card-body">
+        <form (ngSubmit)="toggleResult()">
+          <div class="form-group">
+            <label for="electionId">Election ID</label>
+            <input
+              type="text"
+              id="electionId"
+              name="electionId"
+              [(ngModel)]="electionId"
+              class="input form-control"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <button type="submit" class="button">Enter</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>

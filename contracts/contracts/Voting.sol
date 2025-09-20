@@ -236,6 +236,16 @@ contract Voting {
         );
     }
 
+    function getCandidateIdByName(uint256 _electionId, string memory _name) public view returns (uint256) {
+        Election storage e = elections[_electionId];
+        for (uint256 i = 1; i <= e.candidatesCount; i++) {
+            if (compareStrings(e.candidates[i].name, _name)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     function updateCandidate(
         uint256 _electionId,
         uint256 _candidateId,
@@ -284,19 +294,35 @@ contract Voting {
     }
 
     function getElectionResults(uint256 _electionId)
-        public
-        view
-        returns (string[] memory, uint256[] memory)
-    {
-        Election storage e = elections[_electionId];
-        string[] memory names = new string[](e.candidatesCount);
-        uint256[] memory votes = new uint256[](e.candidatesCount);
+    public
+    view
+    returns (
+        string[] memory names,
+        string[] memory positions,
+        string[] memory partylists,
+        uint256[] memory votes
+    )
+{
+    Election storage e = elections[_electionId];
+    uint256 count = e.candidatesCount;
 
-        for (uint256 i = 1; i <= e.candidatesCount; i++) {
-            names[i-1] = e.candidates[i].name;
-            votes[i-1] = e.candidates[i].voteCount;
-        }
+    names = new string[](count);
+    positions = new string[](count);
+    partylists = new string[](count);
+    votes = new uint256[](count);
 
-        return (names, votes);
+    // your candidates mapping is 1-based, so iterate from 1..count
+    for (uint256 i = 1; i <= count; i++) {
+        uint256 idx = i - 1; // array index (0-based)
+        names[idx] = e.candidates[i].name;
+        positions[idx] = e.candidates[i].position;
+        partylists[idx] = e.candidates[i].partylist;
+        votes[idx] = e.candidates[i].voteCount;
     }
+
+    return (names, positions, partylists, votes);
+}
+
+
+
 }

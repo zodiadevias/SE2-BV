@@ -11,121 +11,72 @@ const web3 = new Web3("http://192.168.100.12:7545");
 
 // Replace with your deployed contract ABI & address
 const contractABI = require("./VotingABI.json");
-const contractAddress = "0xC1aF6401833586cb8537b84cd07439A363c360A7"; // deployed contract
+const contractAddress = "0x3585CD79125c2df890f2043d48e721EFB3168bAe"; // deployed contract
+
 const votingContract = new web3.eth.Contract(contractABI, contractAddress);
 
 // Server wallet (from Ganache)
 const serverAccount = "0x1E8053b4F56B7B480801dd0Ac2f7485364df0fDe";
-const privateKey = "0x173d55fc0eb6eafa3a1c3d7534e0cb68a4945d6f1a40cd020d41b7b93490e42c";
+const privateKey =
+  "0x173d55fc0eb6eafa3a1c3d7534e0cb68a4945d6f1a40cd020d41b7b93490e42c";
 
+/**
+ * Helper: send signed transaction
+ */
+async function sendTransaction(tx) {
+  const gas = await tx.estimateGas({ from: serverAccount });
+  const data = tx.encodeABI();
 
-// Cast vote to multiple candidates
+  const signedTx = await web3.eth.accounts.signTransaction(
+    {
+      to: contractAddress,
+      data,
+      gas,
+    },
+    privateKey
+  );
+
+  return await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+}
+
+/**
+ * ========== ROUTES ==========
+ */
+
+// Cast vote
 app.post("/vote", async (req, res) => {
-  const { electionId, candidateIds } = req.body;
-
+  const { electionId, candidateIds, email } = req.body;
   try {
-    const tx = votingContract.methods.vote(electionId, candidateIds);
-    const gas = await tx.estimateGas({ from: serverAccount });
-    const data = tx.encodeABI();
-
-    const signedTx = await web3.eth.accounts.signTransaction(
-      {
-        to: contractAddress,
-        data,
-        gas,
-      },
-      privateKey
-    );
-
-    const receipt = await web3.eth.sendSignedTransaction(
-      signedTx.rawTransaction
-    );
-
+    const tx = votingContract.methods.vote(electionId, candidateIds, email);
+    const receipt = await sendTransaction(tx);
     res.json({ status: "success", txHash: receipt.transactionHash });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
-
-
-// Create election and add candidates
-app.post("/create-election-and-add-candidates", async (req, res) => {
-  const { name, startDate, endDate, domainFilter,email, candidateNames, candidatePositions, candidatePlatforms, candidateCdns, candidatePartylists } = req.body;
-
-  try {
-    const tx = votingContract.methods.createElectionAndAddCandidates(
-      name,
-      startDate,
-      endDate,
-      domainFilter,
-      email,
-      candidateNames,
-      candidatePositions,
-      candidatePlatforms,
-      candidateCdns,
-      candidatePartylists
-    );
-    const gas = await tx.estimateGas({ from: serverAccount });
-    const data = tx.encodeABI();
-
-    const signedTx = await web3.eth.accounts.signTransaction(
-      {
-        to: contractAddress,
-        data,
-        gas,
-      },
-      privateKey
-    );
-
-    const receipt = await web3.eth.sendSignedTransaction(
-      signedTx.rawTransaction
-    );
-
-    res.json({ status: "success", txHash: receipt.transactionHash });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
 
 // Create election
 app.post("/create-election", async (req, res) => {
-  console.log(req.body);
-  const { name, startDate, endDate, domainFilter,email } = req.body;
-
+  const { name, start, end, domainFilter, email } = req.body;
   try {
     const tx = votingContract.methods.createElection(
       name,
-      startDate,
-      endDate,
+      start,
+      end,
       domainFilter,
       email
     );
-    const gas = await tx.estimateGas({ from: serverAccount });
-    const data = tx.encodeABI();
+    const receipt = await sendTransaction(tx);
 
-    const signedTx = await web3.eth.accounts.signTransaction(
-      {
-        to: contractAddress,
-        data,
-        gas,
-      },
-      privateKey
-    );
-
-    const receipt = await web3.eth.sendSignedTransaction(
-      signedTx.rawTransaction
-    );
-
-    res.json({ status: "success", txHash: receipt.transactionHash });
+    const electionId = await votingContract.methods.electionCount().call();
+    res.json({ status: "success", txHash: receipt.transactionHash, electionId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post("/get-election-count", async (req, res) => {
+// Get election count
+app.get("/get-election-count", async (req, res) => {
   try {
     const electionCount = await votingContract.methods.electionCount().call();
     res.json({ electionCount });
@@ -134,36 +85,19 @@ app.post("/get-election-count", async (req, res) => {
   }
 });
 
-
 // Add multiple candidates
 app.post("/add-candidates", async (req, res) => {
   const { electionId, candidates } = req.body;
-
   try {
     const tx = votingContract.methods.addCandidates(
       electionId,
-      candidates.map(candidate => candidate.name),
-      candidates.map(candidate => candidate.position),
-      candidates.map(candidate => candidate.platform),
-      candidates.map(candidate => candidate.cdn),
-      candidates.map(candidate => candidate.partylist)
+      candidates.map((c) => c.name),
+      candidates.map((c) => c.position),
+      candidates.map((c) => c.platform),
+      candidates.map((c) => c.cdn),
+      candidates.map((c) => c.partylist)
     );
-    const gas = await tx.estimateGas({ from: serverAccount });
-    const data = tx.encodeABI();
-
-    const signedTx = await web3.eth.accounts.signTransaction(
-      {
-        to: contractAddress,
-        data,
-        gas,
-      },
-      privateKey
-    );
-
-    const receipt = await web3.eth.sendSignedTransaction(
-      signedTx.rawTransaction
-    );
-
+    const receipt = await sendTransaction(tx);
     res.json({ status: "success", txHash: receipt.transactionHash });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -173,7 +107,6 @@ app.post("/add-candidates", async (req, res) => {
 // Update election
 app.post("/update-election", async (req, res) => {
   const { electionId, name, startDate, endDate, domainFilter } = req.body;
-
   try {
     const tx = votingContract.methods.updateElection(
       electionId,
@@ -182,191 +115,170 @@ app.post("/update-election", async (req, res) => {
       endDate,
       domainFilter
     );
-    const gas = await tx.estimateGas({ from: serverAccount });
-    const data = tx.encodeABI();
-
-    const signedTx = await web3.eth.accounts.signTransaction(
-      {
-        to: contractAddress,
-        data,
-        gas,
-      },
-      privateKey
-    );
-
-    const receipt = await web3.eth.sendSignedTransaction(
-      signedTx.rawTransaction
-    );
-
+    const receipt = await sendTransaction(tx);
     res.json({ status: "success", txHash: receipt.transactionHash });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get owned elections
+// Owned elections
 app.post("/get-owned-elections", async (req, res) => {
   const { email } = req.body;
-
   try {
-    const ownedElections = await votingContract.methods.getOwnedElections(email).call();
-    res.json(ownedElections);
+    const result = await votingContract.methods.getOwnedElections(email).call();
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get owned election names
 app.post("/get-owned-election-names", async (req, res) => {
   const { email } = req.body;
-
   try {
-    const ownedElectionNames = await votingContract.methods.getOwnedElectionNames(email).call();
-    res.json(ownedElectionNames);
+    const result = await votingContract.methods
+      .getOwnedElectionNames(email)
+      .call();
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get owned election ids
 app.post("/get-owned-election-ids", async (req, res) => {
   const { email } = req.body;
-
   try {
-    const ownedElectionIds = await votingContract.methods.getOwnedElectionIds(email).call();
-    res.json(ownedElectionIds);
+    const result = await votingContract.methods
+      .getOwnedElectionIds(email)
+      .call();
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get election id by name
+// Election lookups
 app.post("/get-election-id-by-name", async (req, res) => {
   const { name } = req.body;
-
   try {
-    const electionId = await votingContract.methods.getElectionIdByName(name).call();
-    res.json(electionId);
+    const electionId = await votingContract.methods
+      .getElectionIdByName(name)
+      .call();
+    res.json({ electionId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get election results
 app.post("/get-election-results", async (req, res) => {
   const { electionId } = req.body;
-
   try {
-    const results = await votingContract.methods.getElectionResults(electionId).call();
+    const results = await votingContract.methods
+      .getElectionResults(electionId)
+      .call();
     res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-
-// Get election details
 app.post("/get-election-details", async (req, res) => {
   const { electionId } = req.body;
-
   try {
-    const details = await votingContract.methods.getElectionDetails(electionId).call();
+    const details = await votingContract.methods
+      .getElectionDetails(electionId)
+      .call();
     res.json(details);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get election candidates
+// Get candidates
 app.post("/get-election-candidates", async (req, res) => {
   const { electionId } = req.body;
-
   try {
-    const candidates = await votingContract.methods.getElectionCandidates(electionId).call();
+    const result = await votingContract.methods
+      .getElectionCandidates(electionId)
+      .call();
+
+    const candidates = result[0].map((name, i) => ({
+      name,
+      position: result[1][i],
+      platform: result[2][i],
+      cdn: result[3][i],
+      partylist: result[4][i],
+    }));
+
     res.json(candidates);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get election candidate count
 app.post("/get-election-candidate-count", async (req, res) => {
   const { electionId } = req.body;
-
   try {
-    const candidateCount = await votingContract.methods.getElectionCandidateCount(electionId).call();
-    res.json(candidateCount);
+    const count = await votingContract.methods
+      .getElectionCandidateCount(electionId)
+      .call();
+    res.json({ candidateCount: count });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // Update candidate
 app.post("/update-candidate", async (req, res) => {
-  const { electionId, candidateId, name, position, platform, cdn } = req.body;
-
+  const { electionId, candidateId, name, position, platform, cdn, partylist } =
+    req.body;
   try {
-    const tx = votingContract.methods.updateCandidate(electionId, candidateId, name, position, platform, cdn);
-    const gas = await tx.estimateGas({ from: serverAccount });
-    const data = tx.encodeABI();
-
-    const signedTx = await web3.eth.accounts.signTransaction(
-      {
-        to: contractAddress,
-        data,
-        gas,
-      },
-      privateKey
+    const tx = votingContract.methods.updateCandidate(
+      electionId,
+      candidateId,
+      name,
+      position,
+      platform,
+      cdn,
+      partylist
     );
-
-    const receipt = await web3.eth.sendSignedTransaction(
-      signedTx.rawTransaction
-    );
-
+    const receipt = await sendTransaction(tx);
     res.json({ status: "success", txHash: receipt.transactionHash });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+// Candidate lookups
+app.post("/get-candidate-id-by-name", async (req, res) => {
+  const { electionId, name } = req.body;
+  try {
+    const id = await votingContract.methods
+      .getCandidateIdByName(electionId, name)
+      .call();
+    res.json({ candidateId: id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-// Delete candidate
 app.post("/delete-candidate", async (req, res) => {
   const { electionId, candidateId } = req.body;
-
   try {
     const tx = votingContract.methods.deleteCandidate(electionId, candidateId);
-    const gas = await tx.estimateGas({ from: serverAccount });
-    const data = tx.encodeABI();
-
-    const signedTx = await web3.eth.accounts.signTransaction(
-      {
-        to: contractAddress,
-        data,
-        gas,
-      },
-      privateKey
-    );
-
-    const receipt = await web3.eth.sendSignedTransaction(
-      signedTx.rawTransaction
-    );
-
+    const receipt = await sendTransaction(tx);
     res.json({ status: "success", txHash: receipt.transactionHash });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-
-// Get election candidate
 app.post("/get-election-candidate", async (req, res) => {
   const { electionId, candidateId } = req.body;
-
   try {
-    const candidate = await votingContract.methods.getElectionCandidate(electionId, candidateId).call();
-
+    const candidate = await votingContract.methods
+      .getElectionCandidate(electionId, candidateId)
+      .call();
     res.json({
       name: candidate[0],
       position: candidate[1],
@@ -380,29 +292,12 @@ app.post("/get-election-candidate", async (req, res) => {
   }
 });
 
-
 // Close election
 app.post("/close-election", async (req, res) => {
   const { electionId } = req.body;
-
   try {
     const tx = votingContract.methods.closeElection(electionId);
-    const gas = await tx.estimateGas({ from: serverAccount });
-    const data = tx.encodeABI();
-
-    const signedTx = await web3.eth.accounts.signTransaction(
-      {
-        to: contractAddress,
-        data,
-        gas,
-      },
-      privateKey
-    );
-
-    const receipt = await web3.eth.sendSignedTransaction(
-      signedTx.rawTransaction
-    );
-
+    const receipt = await sendTransaction(tx);
     res.json({ status: "success", txHash: receipt.transactionHash });
   } catch (err) {
     res.status(500).json({ error: err.message });

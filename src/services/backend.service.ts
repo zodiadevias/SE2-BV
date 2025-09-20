@@ -5,32 +5,13 @@ import axios from 'axios';
   providedIn: 'root'
 })
 export class BackendService {
-
   private apiUrl = 'http://localhost:4000';
 
-  
-
-  async createElectionAndAddCandidates(name: string, startDate: string, endDate: string, domainFilter: string, email: string, candidateNames: string[], candidatePositions: string[], candidatePlatforms: string[], candidateCdns: string[], candidatePartylists: string[]) {
-    const response = await axios.post(`${this.apiUrl}/create-election-and-add-candidates`, {
-      name,
-      startDate,
-      endDate,
-      domainFilter,
-      email,
-      candidateNames,
-      candidatePositions,
-      candidatePlatforms,
-      candidateCdns,
-      candidatePartylists
-    });
-    return response.data;
-  }
-
-  async createElection(name: string, startDate: string, endDate: string, domainFilter: string, email: string) {
+  async createElection(name: string, start: string, end: string, domainFilter: string, email: string) {
     const response = await axios.post(`${this.apiUrl}/create-election`, {
       name,
-      startDate,
-      endDate,
+      start,   // ✅ matches backend
+      end,     // ✅ matches backend
       domainFilter,
       email
     });
@@ -49,81 +30,51 @@ export class BackendService {
   }
 
   async closeElection(electionId: number) {
-    const response = await axios.post(`${this.apiUrl}/close-election`, {
-      electionId
-    });
+    const response = await axios.post(`${this.apiUrl}/close-election`, { electionId });
     return response.data;
   }
-
 
   async getOwnedElections(email: string) {
-    const response = await axios.post(`${this.apiUrl}/get-owned-elections`, {
-      email
-    });
+    const response = await axios.post(`${this.apiUrl}/get-owned-elections`, { email });
     return response.data;
   }
 
-  
   async getOwnedElectionNames(email: string) {
-    const response = await axios.post(`${this.apiUrl}/get-owned-election-names`, {
-      email
-    });
+    const response = await axios.post(`${this.apiUrl}/get-owned-election-names`, { email });
     return response.data;
   }
 
-  
   async getOwnedElectionIds(email: string) {
-    const response = await axios.post(`${this.apiUrl}/get-owned-election-ids`, {
-      email
-    });
+    const response = await axios.post(`${this.apiUrl}/get-owned-election-ids`, { email });
     return response.data;
   }
 
-  
   async getElectionIdByName(name: string) {
-    const response = await axios.post(`${this.apiUrl}/get-election-id-by-name`, {
-      name
-    });
+    const response = await axios.post(`${this.apiUrl}/get-election-id-by-name`, { name });
     return response.data;
   }
-
-  
 
   async getElectionResults(electionId: number) {
-    const response = await axios.post(`${this.apiUrl}/get-election-results`, {
-      electionId
-    });
+    const response = await axios.post(`${this.apiUrl}/get-election-results`, { electionId });
     return response.data;
   }
-
-  
 
   async getElectionDetails(electionId: number) {
-    const response = await axios.post(`${this.apiUrl}/get-election-details`, {
-      electionId
-    });
+    const response = await axios.post(`${this.apiUrl}/get-election-details`, { electionId });
     return response.data;
   }
 
-  
-
-  
-
   async getElectionCount() {
-    const response = await axios.post(`${this.apiUrl}/get-election-count`, {});
+    // ✅ backend is GET not POST
+    const response = await axios.get(`${this.apiUrl}/get-election-count`);
     return Number(response.data.electionCount);
   }
 
-  
-
   async getElectionCandidateCount(electionId: number) {
-    const response = await axios.post(`${this.apiUrl}/get-election-candidate-count`, {
-      electionId
-    });
+    const response = await axios.post(`${this.apiUrl}/get-election-candidate-count`, { electionId });
     return response.data;
   }
 
-  
   async addCandidates(electionId: number, candidates: {name: string, position: string, platform: string, cdn: string, partylist: string}[]) {
     const response = await axios.post(`${this.apiUrl}/add-candidates`, {
       electionId,
@@ -132,14 +83,15 @@ export class BackendService {
     return response.data;
   }
 
-  async updateCandidate(electionId: number, candidateId: number, name: string, position: string, platform: string, cdn: string) {
+  async updateCandidate(electionId: number, candidateId: number, name: string, position: string, platform: string, cdn: string, partylist: string) {
     const response = await axios.post(`${this.apiUrl}/update-candidate`, {
       electionId,
       candidateId,
       name,
       position,
       platform,
-      cdn
+      cdn,
+      partylist   // ✅ added
     });
     return response.data;
   }
@@ -152,7 +104,6 @@ export class BackendService {
     return response.data;
   }
 
-
   async getElectionCandidate(electionId: number, candidateId: number) {
     const response = await axios.post(`${this.apiUrl}/get-election-candidate`, {
       electionId,
@@ -161,22 +112,25 @@ export class BackendService {
     return response.data;
   }
 
-  
-
   async getElectionCandidates(electionId: number) {
-    const response = await axios.post(`${this.apiUrl}/get-election-candidates`, {
-      electionId
-    });
+    const response = await axios.post(`${this.apiUrl}/get-election-candidates`, { electionId });
     return response.data;
   }
 
-
-  async vote(electionId: number, candidateIds: number[]) {
+  async vote(electionId: number, candidateIds: number[], email: string) {
     const response = await axios.post(`${this.apiUrl}/vote`, {
       electionId,
-      candidateIds
+      candidateIds,
+      email
     });
     return response.data;
   }
 
+  async getCandidateIdByName(electionId: number, name: string) {
+    const response = await axios.post(`${this.apiUrl}/get-candidate-id-by-name`, {
+      electionId,
+      name
+    });
+    return response.data;
+  }
 }

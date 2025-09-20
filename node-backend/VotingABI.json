@@ -599,6 +599,32 @@
       "type": "function"
     },
     {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_electionId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        }
+      ],
+      "name": "getCandidateIdByName",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "constant": false,
       "inputs": [
         {
@@ -696,12 +722,22 @@
       "outputs": [
         {
           "internalType": "string[]",
-          "name": "",
+          "name": "names",
+          "type": "string[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "positions",
+          "type": "string[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "partylists",
           "type": "string[]"
         },
         {
           "internalType": "uint256[]",
-          "name": "",
+          "name": "votes",
           "type": "uint256[]"
         }
       ],

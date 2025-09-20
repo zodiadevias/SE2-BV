@@ -19,6 +19,17 @@ export class VoteComponent {
     private backendService: BackendService
   ) {}
 
+  email: any;
+
+  ngOnInit() {
+    this.authService.authState$.subscribe(user => {
+      if (user) {
+        this.email = user.email;
+      }
+    });
+    
+  }
+
   voting = false;
   electionId: any;
   election: any;
@@ -51,75 +62,83 @@ export class VoteComponent {
   }
 
   // Final submit all votes
-  submitVotes(): void {
-    const votes = this.candidatesByPosition.map(pos => {
-      const candidateId = this.selectedCandidates[pos.id];
-      return {
-        position: pos.name,
-        candidate: pos?.candidates.find((c: { id: string }) => c.id === this.selectedCandidates[pos.id])?.name ?? null
-      };
-    });
-
-    if (votes.some(v => v.candidate === null)) {
-      this.lastVotedMessage = '⚠️ Please choose a candidate for every position before submitting.';
-      return;
-    }
-
-    // 👉 Later: call backendService.castVotes(this.electionId, votes)
-    this.lastVotedMessage = `✅ Votes submitted:\n${votes
-      .map(v => `${v.position}: ${v.candidate}`)
-      .join(', ')}`;
-
-
-    console.log(votes);
-
-    //todo:
-    // get all candidate ids by name
-    // call backendService.castVotes(this.electionId, votes)
+async submitVotes(): Promise<void> {
+  if (!this.electionId) {
+    this.lastVotedMessage = "⚠️ Election ID not set.";
+    return;
   }
+
+  // build candidate IDs array
+  const candidateIds: number[] = [];
+  const votes = this.candidatesByPosition.map(pos => {
+    const candidateId = this.selectedCandidates[pos.id];
+    const candidate = pos.candidates.find((c: { id: string }) => c.id === candidateId);
+    if (candidate) {
+      candidateIds.push(Number(candidate.id)); // Solidity expects uint256[]
+    }
+    return {
+      position: pos.name,
+      candidate: candidate?.name ?? null,
+    };
+  });
+
+  // check if any missing selections
+  if (votes.some(v => v.candidate === null)) {
+    this.lastVotedMessage =
+      "⚠️ Please choose a candidate for every position before submitting.";
+    return;
+  }
+
+  try {
+    
+    const response = await this.backendService.vote(this.electionId, candidateIds, this.email);
+
+    this.lastVotedMessage = `✅ Votes submitted successfully! TxHash: ${response.txHash}`;
+    console.log("Vote response:", response);
+  } catch (err: any) {
+    console.error("Vote error:", err);
+    this.lastVotedMessage = `❌ Error submitting votes: ${err.response.data.error || err}`;
+  }
+}
+
 
   async fetchCandidates() {
-    const result = await this.backendService.getElectionCandidates(this.electionId-1);
-    const names = result[0];
-    const positions = result[1];
-    const platforms = result[2];
-    const cdns = result[3];
-    const partylists = result[4];
+  try {
+    // get all candidates for election
+    const candidates = await this.backendService.getElectionCandidates(this.electionId);
+    const countRes = await this.backendService.getElectionCandidateCount(this.electionId);
 
-    const grouped: { [pos: string]: any } = {};
+    console.log("Fetched candidates:", candidates);
+    console.log("Candidate count:", countRes.candidateCount);
 
-    for (let i = 0; i < names.length; i++) {
-      const position = positions[i];
-
-      if (!grouped[position]) {
-        grouped[position] = {
-          id: position.toLowerCase().replace(/\s+/g, '-'),
-          name: position,
-          description: `Candidates for ${position}`,
-          candidates: []
-        };
-      }
-
-      grouped[position].candidates.push({
-        id: `cand-${i}`,
-        name: names[i],
-        position: positions[i],
-        platform: platforms[i],
-        cdn: cdns[i],
-        partylist: partylists[i]
+    // group candidates by position
+    const grouped: { [pos: string]: any[] } = {};
+    candidates.forEach((c: any, index: number) => {
+      const pos = c.position || "Unknown";
+      if (!grouped[pos]) grouped[pos] = [];
+      grouped[pos].push({
+        id: String(index + 1), // 1-based index (matches Solidity storage)
+        ...c
       });
-    }
-
-    this.candidatesByPosition = Object.values(grouped);
-
-    // reset selections
-    this.selectedCandidates = {};
-    this.candidatesByPosition.forEach(pos => {
-      this.selectedCandidates[pos.id] = null;
     });
 
-    console.log('Grouped Candidates:', this.candidatesByPosition);
+    // convert into array for easier template iteration
+    this.candidatesByPosition = Object.keys(grouped).map(pos => ({
+      id: pos,        // use position name as id
+      name: pos,
+      candidates: grouped[pos]
+    }));
+
+    // auto-select first position
+    if (this.candidatesByPosition.length > 0) {
+      this.selectedPositionId = this.candidatesByPosition[0].id;
+    }
+
+  } catch (err) {
+    console.error("Error fetching candidates:", err);
   }
+}
+
 
   async toggleVote() {
     this.election = await this.backendService.getElectionDetails(this.electionId);
