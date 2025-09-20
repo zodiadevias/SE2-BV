@@ -13,9 +13,10 @@ import { FileUploaderService } from '../../../services/file-uploader.service';
   templateUrl: './election.component.html',
   styleUrl: './election.component.css',
 })
-export class ElectionComponent {
+export default class ElectionComponent {
   email: string | any;
   electionForm: FormGroup;
+  updateElectionForm: FormGroup;
   cdnUrl: string | null = null;
 
   constructor(
@@ -31,6 +32,21 @@ export class ElectionComponent {
       start: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       end: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       partylists: this.formBuilder.array<FormGroup>([]),
+      // ✅ NEW: Position presets array
+      positionPresets: this.formBuilder.array<FormGroup>([
+        this.formBuilder.group({ name: new FormControl<string>('President', { nonNullable: true }) }),
+        this.formBuilder.group({ name: new FormControl<string>('Vice President', { nonNullable: true }) }),
+        this.formBuilder.group({ name: new FormControl<string>('Secretary', { nonNullable: true }) }),
+      ]),
+    });
+
+
+    this.updateElectionForm = this.formBuilder.group({
+      updateName: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
+      updateDomainFilter: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      updateStart: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      updateEnd: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      updatePartylists: this.formBuilder.array<FormGroup>([]),
       // ✅ NEW: Position presets array
       positionPresets: this.formBuilder.array<FormGroup>([
         this.formBuilder.group({ name: new FormControl<string>('President', { nonNullable: true }) }),
@@ -257,6 +273,37 @@ getCandidate(electionId: number, candidateId: number) {
   }
 
 
+
+
+  // FOR UPDATE CANDIDATES AND UPDATE ELECTION
+  toggle = 'create';
+
+  electionId: number | null = null;
+  electionName: string | null = null;
+
+  election: any | null = null;
+  candidates: any | null = null;
+
+  openElection(electionId: number, electionName: string) {
+    this.toggle = 'update';
+    this.electionId = electionId;
+    this.electionName = electionName;
+
+
+    this.backendService.getElectionDetails(electionId).then((res: any) => {
+      this.election = res;
+      console.log("Election details:", this.election);
+
+      this.updateElectionForm.patchValue({
+        updateName: this.election[0],
+        updateDomainFilter: this.election[5],
+        updateStart: new Date(this.election[3]).toISOString().slice(0, 16),
+        updateEnd: new Date(this.election[4]).toISOString().slice(0, 16),
+      });
+    });
+    
+
+  }
 
 
 

@@ -11,7 +11,7 @@ const web3 = new Web3("http://192.168.100.12:7545");
 
 // Replace with your deployed contract ABI & address
 const contractABI = require("./VotingABI.json");
-const contractAddress = "0x3585CD79125c2df890f2043d48e721EFB3168bAe"; // deployed contract
+const contractAddress = "0x4d73E93d07E57D286936357a6F429EcB48c334ce"; // deployed contract
 
 const votingContract = new web3.eth.Contract(contractABI, contractAddress);
 
@@ -299,6 +299,16 @@ app.post("/close-election", async (req, res) => {
     const tx = votingContract.methods.closeElection(electionId);
     const receipt = await sendTransaction(tx);
     res.json({ status: "success", txHash: receipt.transactionHash });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/is-election-open", async (req, res) => {
+  const { electionId } = req.body;
+  try {
+    const isOpen = await votingContract.methods.isElectionOpen(electionId).call();
+    res.json({ isOpen });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

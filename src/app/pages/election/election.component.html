@@ -1,7 +1,5 @@
-<div class="container">
-
-  
-
+@if(toggle=='create'){
+  <div class="container">
   <form [formGroup]="electionForm" (ngSubmit)="submit()" class="card">
     <div class="card-header">
       <div class="card-title">Create Election</div>
@@ -145,18 +143,69 @@
             <td>{{ e[3] | date:'dd/MM/yyyy, h:mm a' }}</td>
             <td>{{ e[4] | date:'dd/MM/yyyy, h:mm a'}}</td>
             <td><span class="badge success" *ngIf="e[2]==true">Active</span><span class="badge" *ngIf="e[2]==false">Ended</span></td>
-            <td style="text-align:right;"><button class="button" type="button" >Open</button></td>
+            <td style="text-align:right;"><button class="button" type="button" (click)="openElection(e[0],e[1])">Open</button></td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 </div>
+}
 
 
-<div>
-  <input type="text" [(ngModel)]="id">
-  <input type="text" [(ngModel)]="candidateId">
-  <button (click)="getCandidate(id, candidateId)">Go</button>
-  <button (click)="getOwnedElections()">check owned elections</button>
+@if(toggle=='update'){
+<div class="container grid grid-2">
+  <div class="card left">
+        <form [formGroup]="updateElectionForm" (ngSubmit)="submit()" class="card">
+          <div class="card-header">
+            <div class="card-title">Election ID: {{ electionId }} - {{ electionName }}</div>
+          </div>
+
+          <div class="card-body">
+            <div class="card-title">Update Election</div>
+            
+
+          </div>
+            <div class="card-body grid grid-2">
+              <div>
+                <label>Name</label>
+                <input class="input" placeholder="e.g., Board Election 2025" formControlName="updateName" />
+              </div>
+              <div>
+                <label>Domain Filter</label>
+                <input class="input" placeholder="e.g., @gmail.com" formControlName="updateDomainFilter" />
+              </div>
+              <div>
+                <label>Start</label>
+                <input type="datetime-local" class="input" formControlName="updateStart" />
+              </div>
+              <div>
+                <label>End</label>
+                <input type="datetime-local" class="input" formControlName="updateEnd" />
+              </div>
+
+            </div>
+
+            <div style="display:flex; justify-content:center;">
+              <button 
+                type="submit" 
+                [disabled]="submitting || updateElectionForm.invalid" 
+                class="btn btn-primary button">
+                {{ submitting ? 'Updating...' : 'Update' }}
+              </button>
+            </div>
+
+        </form>
+    </div>
+  
+      <div class="card right">
+        <div class="card-header">
+          <div class="card-title">Candidates</div>
+        </div>
+        <div class="card-body">
+          
+        </div>
+      </div>
+  
 </div>
+}

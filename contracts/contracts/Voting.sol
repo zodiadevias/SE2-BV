@@ -302,26 +302,32 @@ contract Voting {
         string[] memory partylists,
         uint256[] memory votes
     )
-{
-    Election storage e = elections[_electionId];
-    uint256 count = e.candidatesCount;
+    {
+        Election storage e = elections[_electionId];
+        uint256 count = e.candidatesCount;
 
-    names = new string[](count);
-    positions = new string[](count);
-    partylists = new string[](count);
-    votes = new uint256[](count);
+        names = new string[](count);
+        positions = new string[](count);
+        partylists = new string[](count);
+        votes = new uint256[](count);
 
-    // your candidates mapping is 1-based, so iterate from 1..count
-    for (uint256 i = 1; i <= count; i++) {
-        uint256 idx = i - 1; // array index (0-based)
-        names[idx] = e.candidates[i].name;
-        positions[idx] = e.candidates[i].position;
-        partylists[idx] = e.candidates[i].partylist;
-        votes[idx] = e.candidates[i].voteCount;
+        // your candidates mapping is 1-based, so iterate from 1..count
+        for (uint256 i = 1; i <= count; i++) {
+            uint256 idx = i - 1; // array index (0-based)
+            names[idx] = e.candidates[i].name;
+            positions[idx] = e.candidates[i].position;
+            partylists[idx] = e.candidates[i].partylist;
+            votes[idx] = e.candidates[i].voteCount;
+        }
+
+        return (names, positions, partylists, votes);
     }
 
-    return (names, positions, partylists, votes);
-}
+
+    function isElectionOpen(uint256 _electionId) public view returns (bool) {
+        Election storage e = elections[_electionId];
+        return e.isOpen;
+    }
 
 
 

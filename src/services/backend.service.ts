@@ -133,4 +133,11 @@ export class BackendService {
     });
     return response.data;
   }
+
+  async isElectionOpen(electionId: number) {
+    const response = await axios.post(`${this.apiUrl}/is-election-open`, { electionId });
+    return response.data.isOpen;
+  }
+
+  
 }
