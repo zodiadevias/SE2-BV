@@ -106,7 +106,11 @@
           </div>
           <div class="form-group">
             <button type="submit" class="button">Enter</button>
+            
           </div>
+          <div class="alert danger" *ngIf="errorMessage" style="margin-top:1rem; white-space: pre-line;">
+              {{ errorMessage }}
+            </div>
         </form>
       </div>
     </div>

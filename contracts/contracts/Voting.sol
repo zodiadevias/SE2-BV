@@ -252,7 +252,8 @@ contract Voting {
         string memory _name,
         string memory _position,
         string memory _platform,
-        string memory _cdn
+        string memory _cdn,
+        string memory _partylist
     ) public {
         Election storage e = elections[_electionId];
         require(_candidateId > 0 && _candidateId <= e.candidatesCount, "Invalid candidate ID");
@@ -261,6 +262,7 @@ contract Voting {
         e.candidates[_candidateId].position = _position;
         e.candidates[_candidateId].platform = _platform;
         e.candidates[_candidateId].cdn = _cdn;
+        e.candidates[_candidateId].partylist = _partylist;
     }
 
     function deleteCandidate(uint256 _electionId, uint256 _candidateId) public {

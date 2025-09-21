@@ -656,6 +656,11 @@
           "internalType": "string",
           "name": "_cdn",
           "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_partylist",
+          "type": "string"
         }
       ],
       "name": "updateCandidate",

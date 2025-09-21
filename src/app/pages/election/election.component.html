@@ -154,9 +154,12 @@
 
 
 @if(toggle=='update'){
+  <div class="container" style="margin-top:1rem;">
+    <button class="button muted" type="button" (click)="toggle='create'">Back</button>
+  </div>
 <div class="container grid grid-2">
   <div class="card left">
-        <form [formGroup]="updateElectionForm" (ngSubmit)="submit()" class="card">
+        <form [formGroup]="updateElectionForm" (ngSubmit)="updateElection()" class="card">
           <div class="card-header">
             <div class="card-title">Election ID: {{ electionId }} - {{ electionName }}</div>
           </div>
@@ -202,10 +205,77 @@
         <div class="card-header">
           <div class="card-title">Candidates</div>
         </div>
-        <div class="card-body">
-          
-        </div>
+        <div class="card-body" style="overflow:auto;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Partylist</th>
+          </tr>
+        </thead>
+        
+          <tbody>
+            <tr *ngFor="let candidate of candidates; let i = index" class="updateCandidates" (click)="candidateSelected(i+1)">
+              <td>{{ candidate.name }}</td>
+              <td>{{ candidate.partylist }}</td>
+            </tr>
+          </tbody>
+        
+      </table>
+    </div>
       </div>
   
 </div>
 }
+
+
+@if(toggle == 'candidate'){
+<div class="container candidate-details" *ngIf="toggle == 'candidate'">
+  <div class="back-button">
+    <button class="button muted" type="button" (click)="toggle='update'">Back</button>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Candidate Details</div>
+    </div>
+    <div class="card-body">
+  <img [src]="candidate.cdn" alt="{{ candidate.name }}" 
+       style="max-width: 100px; border-radius: 6px; margin: 1rem auto; display: block;" />
+
+  <div class="grid grid-2">
+    <div>
+      <label>Candidate Name</label>
+      <input class="input" placeholder="e.g., Alice Johnson" [(ngModel)]="candidate.name" />
+    </div>
+    <div>
+      <label>Partylist</label>
+      <input class="input" placeholder="e.g., Unity Party" [(ngModel)]="candidate.partylist" />
+    </div>
+    <div>
+      <label>Position</label>
+      <input class="input" placeholder="e.g., President" [(ngModel)]="candidate.position" />
+    </div>
+    <div>
+      <label>Platform</label>
+      <textarea class="input" rows="2" placeholder="Campaign platform" [(ngModel)]="candidate.platform"></textarea>
+    </div>
+    <div>
+      <label>Image</label>
+      <input type="file" accept="image/*" (change)="onCandidateImageSelected($event)" />
+    </div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:center;">
+    <button class="btn btn-primary button" type="button" (click)="updateCandidate()">
+      {{ submitting ? 'Updating...' : 'Save Candidate' }}
+    </button>
+  </div>
+</div>
+
+  </div>
+</div>
+}
+
+
+
+

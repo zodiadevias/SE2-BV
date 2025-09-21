@@ -7,18 +7,18 @@ app.use(cors());
 app.use(express.json());
 
 // Ganache RPC endpoint
-const web3 = new Web3("http://192.168.100.12:7545");
-
+// const web3 = new Web3("http://192.168.100.12:7545");
+const web3 = new Web3("https://ethereum-sepolia.rpc.subquery.network/public");
 // Replace with your deployed contract ABI & address
 const contractABI = require("./VotingABI.json");
-const contractAddress = "0x4d73E93d07E57D286936357a6F429EcB48c334ce"; // deployed contract
+const contractAddress = "0x2bd1f45fe793b5057401500c2fccea1677d72496"; // deployed contract
 
 const votingContract = new web3.eth.Contract(contractABI, contractAddress);
 
 // Server wallet (from Ganache)
-const serverAccount = "0x1E8053b4F56B7B480801dd0Ac2f7485364df0fDe";
+const serverAccount = "0x514f2160831880228596a7bE6094A61E9B6d62f8";
 const privateKey =
-  "0x173d55fc0eb6eafa3a1c3d7534e0cb68a4945d6f1a40cd020d41b7b93490e42c";
+  "36306509366080fce51467e0e8b0c8702b93b8215d1cf46f997c7e59f5b9a145";
 
 /**
  * Helper: send signed transaction
@@ -106,14 +106,15 @@ app.post("/add-candidates", async (req, res) => {
 
 // Update election
 app.post("/update-election", async (req, res) => {
-  const { electionId, name, startDate, endDate, domainFilter } = req.body;
+  const { electionId, name, startDate, endDate, domainFilter, email } = req.body;
   try {
     const tx = votingContract.methods.updateElection(
       electionId,
       name,
       startDate,
       endDate,
-      domainFilter
+      domainFilter,
+      email
     );
     const receipt = await sendTransaction(tx);
     res.json({ status: "success", txHash: receipt.transactionHash });

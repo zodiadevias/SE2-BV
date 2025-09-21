@@ -83,3 +83,11 @@
   color: #aaa;
   margin-top: .5rem;
 }
+
+
+.updateCandidates:hover{
+  cursor: pointer;
+  background-color: #aaa;
+  color: black;
+  transition: all 0.2s ease-in-out;
+}

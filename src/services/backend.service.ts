@@ -5,7 +5,7 @@ import axios from 'axios';
   providedIn: 'root'
 })
 export class BackendService {
-  private apiUrl = 'http://localhost:4000';
+  private apiUrl = 'https://us-central1-blockvote-912af.cloudfunctions.net/api';
 
   async createElection(name: string, start: string, end: string, domainFilter: string, email: string) {
     const response = await axios.post(`${this.apiUrl}/create-election`, {
@@ -18,13 +18,14 @@ export class BackendService {
     return response.data;
   }
 
-  async updateElection(electionId: number, name: string, startDate: string, endDate: string, domainFilter: string) {
+  async updateElection(electionId: number, name: string, startDate: string, endDate: string, domainFilter: string, email: string) {
     const response = await axios.post(`${this.apiUrl}/update-election`, {
       electionId,
       name,
       startDate,
       endDate,
-      domainFilter
+      domainFilter,
+      email
     });
     return response.data;
   }

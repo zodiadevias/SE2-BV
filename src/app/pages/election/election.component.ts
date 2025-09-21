@@ -27,7 +27,7 @@ export default class ElectionComponent {
     private fileUploaderService: FileUploaderService
   ) {
     this.electionForm = this.formBuilder.group({
-      name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
+      name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.minLength(1)] }),
       domainFilter: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       start: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       end: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
@@ -46,13 +46,13 @@ export default class ElectionComponent {
       updateDomainFilter: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       updateStart: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
       updateEnd: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
-      updatePartylists: this.formBuilder.array<FormGroup>([]),
-      // ✅ NEW: Position presets array
-      positionPresets: this.formBuilder.array<FormGroup>([
-        this.formBuilder.group({ name: new FormControl<string>('President', { nonNullable: true }) }),
-        this.formBuilder.group({ name: new FormControl<string>('Vice President', { nonNullable: true }) }),
-        this.formBuilder.group({ name: new FormControl<string>('Secretary', { nonNullable: true }) }),
-      ]),
+      // updatePartylists: this.formBuilder.array<FormGroup>([]),
+      // // ✅ NEW: Position presets array
+      // positionPresets: this.formBuilder.array<FormGroup>([
+      //   this.formBuilder.group({ name: new FormControl<string>('President', { nonNullable: true }) }),
+      //   this.formBuilder.group({ name: new FormControl<string>('Vice President', { nonNullable: true }) }),
+      //   this.formBuilder.group({ name: new FormControl<string>('Secretary', { nonNullable: true }) }),
+      // ]),
     });
 
     // Initialize with one empty party
@@ -154,6 +154,7 @@ submitting = false;
   // 🔹 Submit Form
 // replace your existing submit() with this
 async submit() {
+  console.log('Submit form');
   if (this.electionForm.invalid) {
     this.electionForm.markAllAsTouched();
     console.log('Invalid form');
@@ -278,7 +279,7 @@ getCandidate(electionId: number, candidateId: number) {
   // FOR UPDATE CANDIDATES AND UPDATE ELECTION
   toggle = 'create';
 
-  electionId: number | null = null;
+  electionId: any;
   electionName: string | null = null;
 
   election: any | null = null;
@@ -301,10 +302,146 @@ getCandidate(electionId: number, candidateId: number) {
         updateEnd: new Date(this.election[4]).toISOString().slice(0, 16),
       });
     });
+
+    this.getElectionCandidates(electionId);
     
 
   }
 
+  async updateElection() {
+    this.submitting = true;
+    this.electionForm.disable(); // disable while submitting
+
+    try {
+      const updateElectionFormValues = this.updateElectionForm.getRawValue();
+      const updateRes = await this.backendService.updateElection(
+        this.electionId,
+        updateElectionFormValues.updateName.toString(),
+        updateElectionFormValues.updateStart.toString(),
+        updateElectionFormValues.updateEnd.toString(),
+        updateElectionFormValues.updateDomainFilter.toString(),
+        this.email.toString()
+      );
+
+      this.firebaseService.addToHistory(this.email, 'Election Updated', updateRes.txHash, new Date());
+
+      alert('Election updated successfully ✅');
+
+      // reset form
+      this.updateElectionForm.reset();
+      this.backendService.getElectionDetails(this.electionId).then((res: any) => {
+      this.election = res;
+      console.log("Election details:", this.election);
+
+      this.updateElectionForm.patchValue({
+        updateName: this.election[0],
+        updateDomainFilter: this.election[5],
+        updateStart: new Date(this.election[3]).toISOString().slice(0, 16),
+        updateEnd: new Date(this.election[4]).toISOString().slice(0, 16),
+      });
+    });
+
+    } catch (err: any) {
+      console.error(err);
+      alert('Something went wrong ❌ — ' + (err?.message ?? err));
+    } finally {
+      this.submitting = false;
+      this.electionForm.enable(); // re-enable after submit
+    }
+  }
+
+
+  selectedCandidateFile: File | null = null;
+
+
+  onCandidateImageSelected(event: Event) {
+  const input = event.target as HTMLInputElement;
+  if (!input.files?.length) return;
+
+  this.selectedCandidateFile = input.files[0];
+
+  // generate preview
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (this.candidate) {
+      this.candidate.cdn = reader.result as string;
+    }
+  };
+  reader.readAsDataURL(this.selectedCandidateFile);
+}
+
+
+async updateCandidate() {
+  if (!this.candidate) return;
+  this.submitting = true;
+
+  try {
+    let cdnUrl = this.candidate.cdn;
+
+    // upload new file if selected
+    if (this.selectedCandidateFile) {
+      const uploadRes: any = await this.fileUploaderService
+        .uploadFile(this.selectedCandidateFile)
+        .toPromise();
+
+      cdnUrl = `https://ucarecdn.com/${uploadRes.file}/-/preview/150x150/`;
+    }
+
+    
+
+    console.log(this.electionId, this.candidateId, this.candidate.name, this.candidate.position, this.candidate.platform, cdnUrl, this.candidate.partylist);
+
+    // send update request to backend
+    const updateRes = await this.backendService.updateCandidate(
+      this.electionId as number,
+      this.candidateId as number,
+      this.candidate.name ?? '',
+      this.candidate.position ?? '',
+      this.candidate.platform ?? '',
+      cdnUrl,
+      this.candidate.partylist ?? ''
+    );
+
+
+    // save history
+    this.firebaseService.addToHistory(
+      this.email,
+      'Candidate Updated',
+      updateRes.txHash,
+      new Date()
+    );
+
+    alert('Candidate updated successfully ✅');
+    this.toggle = 'update'; // go back to election update view
+    this.getElectionCandidates(this.electionId); // refresh list
+  } catch (err: any) {
+    console.error(err);
+    alert('Something went wrong ❌ — ' + (err?.message ?? err));
+  } finally {
+    this.submitting = false;
+    this.selectedCandidateFile = null;
+  }
+}
+
+  
+ 
+  async getElectionCandidates(electionId: number) {
+    this.candidates = await this.backendService.getElectionCandidates(electionId);
+    console.log("Candidates:", this.candidates);
+    
+  }
+
+
+  candidateSelected(candidateId: number) {
+    this.backendService.getElectionCandidate(this.electionId, candidateId).then((res: any) => {
+      this.candidate = res;
+      this.candidateId = candidateId;
+      console.log("Candidate:", this.candidate);
+    });
+
+    this.toggle = 'candidate';
+  }
+  
 
 
 

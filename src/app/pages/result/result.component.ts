@@ -100,6 +100,7 @@ export class ResultComponent {
       const confirm = window.confirm('Are you sure you want to close the election?');
       if (confirm) {
         this.backendService.closeElection(Number(this.electionId));
+        this.checkElectionOpen();
       }
     }
   }

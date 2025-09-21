@@ -139,9 +139,24 @@ async submitVotes(): Promise<void> {
   }
 }
 
+errorMessage = '';
 
   async toggleVote() {
     this.election = await this.backendService.getElectionDetails(this.electionId);
+    console.log(typeof(this.email) , typeof(this.election[5]));
+    console.log("Election details:", this.election);
+    if (!this.election) {
+      this.errorMessage = "⚠️ Election not found.";
+      return;
+    }
+    if (!this.election[1]) {
+      this.errorMessage = "⚠️ Election is not open.";
+      return;
+    }
+    if (this.email.includes(this.election[5]) == false) {
+      this.errorMessage = "⚠️ You are not qualified to vote.";
+      return;
+    }
     await this.fetchCandidates();
     this.voting = !this.voting;
   }
