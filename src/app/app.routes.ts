@@ -28,6 +28,7 @@ export const routes: Routes = [
       { path: 'vote', component: VoteComponent, title: 'Vote · SE BlockVote' },
       { path: 'vote/:electionId', component: VoteComponent, title: 'Vote · SE BlockVote' },
       { path: 'result', component: ResultComponent, title: 'Election Results · SE BlockVote' },
+      { path: 'result/:electionId', component: ResultComponent, title: 'Election Results · SE BlockVote' },
     ],
   },
   { path: '**', redirectTo: 'app' },
