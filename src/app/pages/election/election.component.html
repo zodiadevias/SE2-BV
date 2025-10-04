@@ -99,14 +99,40 @@
 
                     <div>
                       <label>Image</label>
-                      <input type="file" accept="image/*" (change)="onImageSelected($event, i, j)" />
+                      <div class="image-upload-container">
+                        <div class="image-upload-area" [class.has-image]="c.get('imageDataUrl')?.value">
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            (change)="onImageSelected($event, i, j)" 
+                            class="image-upload-input"
+                            id="image-upload-{{i}}-{{j}}"
+                          />
+                          <label for="image-upload-{{i}}-{{j}}" class="image-upload-label">
+                            <div class="upload-icon" *ngIf="!c.get('imageDataUrl')?.value">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7,10 12,15 17,10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                              </svg>
+                            </div>
+                            <div class="upload-text" *ngIf="!c.get('imageDataUrl')?.value">
+                              <span class="upload-title">Upload Image</span>
+                              <span class="upload-subtitle">Click to browse or drag & drop</span>
+                            </div>
+                            <div class="image-preview" *ngIf="c.get('imageDataUrl')?.value as img">
+                              <img [src]="img" alt="Preview" class="preview-img" />
+                              <div class="image-overlay">
+                                <span class="change-text">Change Image</span>
+                              </div>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
                     </div>
                     <div style="grid-column: 1 / -1;">
                       <label>Platform</label>
                       <textarea class="input" rows="2" placeholder="Campaign platform" formControlName="platform"></textarea>
-                    </div>
-                    <div style="grid-column: 1 / -1;" *ngIf="c.get('imageDataUrl')?.value as img">
-                      <img [src]="img" alt="Preview" style="max-width: 200px; border-radius: 6px;" />
                     </div>
                     
                   </div>
@@ -261,7 +287,36 @@
     </div>
     <div>
       <label>Image</label>
-      <input type="file" accept="image/*" (change)="onCandidateImageSelected($event)" />
+      <div class="image-upload-container">
+        <div class="image-upload-area" [class.has-image]="candidate.cdn">
+          <input 
+            type="file" 
+            accept="image/*" 
+            (change)="onCandidateImageSelected($event)" 
+            class="image-upload-input"
+            id="candidate-image-upload"
+          />
+          <label for="candidate-image-upload" class="image-upload-label">
+            <div class="upload-icon" *ngIf="!candidate.cdn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7,10 12,15 17,10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </div>
+            <div class="upload-text" *ngIf="!candidate.cdn">
+              <span class="upload-title">Upload Image</span>
+              <span class="upload-subtitle">Click to browse or drag & drop</span>
+            </div>
+            <div class="image-preview" *ngIf="candidate.cdn">
+              <img [src]="candidate.cdn" alt="Preview" class="preview-img" />
+              <div class="image-overlay">
+                <span class="change-text">Change Image</span>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 
