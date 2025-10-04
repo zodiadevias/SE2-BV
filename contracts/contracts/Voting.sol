@@ -25,6 +25,15 @@ contract Voting {
         uint256 voteCount;
     }
 
+    event ElectionCreated(
+        uint256 indexed electionId,
+        string name,
+        string startDate,
+        string endDate,
+        string domainFilter,
+        string ownerEmail
+    );
+
     struct Election {
         string name;
         bool isOpen;
@@ -57,7 +66,7 @@ contract Voting {
     // Election Management
     // ============================
 
-    function createElection(
+    function createElection (
         string memory _name,
         string memory _startDate,
         string memory _endDate,
@@ -76,6 +85,16 @@ contract Voting {
         ownedElections[_email].push(
             CreatedElections(electionCount, _name, true, _startDate, _endDate, _domainFilter)
         );
+        emit ElectionCreated(
+            electionCount,
+            _name,
+            _startDate,
+            _endDate,
+            _domainFilter,
+            _email
+        );
+
+        
     }
 
     function getElectionCount() public view returns (uint256) {

@@ -8,7 +8,8 @@ import contractABI from './VotingABI.json';
 export class BackendService {
   private web3: Web3;
   private contract: any;
-  private contractAddress = '0x2bd1f45fe793b5057401500c2fccea1677d72496';
+  // private contractAddress = '0x2bd1f45fe793b5057401500c2fccea1677d72496';
+  private contractAddress = '0x5900760eddf3da4a3b8942bb9f7cdf3f8e9c73c4';
 
   // ⚠️ Private key exposed – use only for demo/testing
   private serverAccount = '0x514f2160831880228596a7bE6094A61E9B6d62f8';
@@ -16,7 +17,7 @@ export class BackendService {
     '36306509366080fce51467e0e8b0c8702b93b8215d1cf46f997c7e59f5b9a145';
 
   constructor() {
-    this.web3 = new Web3('https://ethereum-sepolia.rpc.subquery.network/public');
+    this.web3 = new Web3('https://ethereum-sepolia-rpc.publicnode.com');
     this.contract = new this.web3.eth.Contract(
       contractABI as any,
       this.contractAddress
@@ -43,10 +44,43 @@ export class BackendService {
   }
 
   /** ========= WRITE FUNCTIONS ========= */
-  async createElection(name: string, start: number, end: number, domainFilter: string, email: string) {
+  async createElection(
+    name: string,
+    start: number,
+    end: number,
+    domainFilter: string,
+    email: string
+  ) {
     const tx = this.contract.methods.createElection(name, start, end, domainFilter, email);
-    return await this.sendTransaction(tx);
+    const receipt = await this.sendTransaction(tx);
+
+    console.log("RAW RECEIPT:", receipt);
+
+    // Try to decode event using ABI
+    const decoded = receipt.events?.['ElectionCreated']?.returnValues;
+
+    let electionId: number | null = null;
+
+    if (decoded) {
+      // ✅ If ABI is correct
+      electionId = Number(decoded.electionId);
+    } else {
+      // ❌ ABI not decoding, fallback: read from topics
+      const log = receipt.logs[0];
+      if (log && log.topics.length > 1) {
+        electionId = parseInt(log.topics[1], 16);
+      }
+    }
+
+    return {
+      txHash: receipt.transactionHash,
+      electionId
+    };
   }
+
+
+
+
 
   async updateElection(electionId: number, name: string, startDate: number, endDate: number, domainFilter: string, email: string) {
     const tx = this.contract.methods.updateElection(electionId, name, startDate, endDate, domainFilter, email);

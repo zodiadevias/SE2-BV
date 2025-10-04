@@ -28,10 +28,9 @@ export class VoteComponent {
   }
 
   email: any;
-  voting : number = 0;
+  voting : number | null = null;
   electionId: any;
   election: any;
-  notFound = false;
   role: any;
 
   ngOnInit() {
@@ -41,39 +40,19 @@ export class VoteComponent {
         this.authService.role$.subscribe(role => {
           if (role) {
             this.role = role;
-            
+            if (this.role === 'organizer') {
+              this.voting = 0;
+            }else if (this.role === 'voter') {
+              this.voting = 2;
+            }else{
+              this.voting = 0;
+            }
           }
         });
         this.route.paramMap.subscribe(params => {
           this.electionId = params.get('electionId');
-          console.log(this.role);
-          this.toggleVote().then(() => {
-
-            if(this.role === 'organizer'){
-              this.router.navigate(['/']);
-              this.electionId = null;
-              return;
-            }else if(this.role === 'voter'){
-              this.voting = 1;
-              console.log(this.role);
-            }
-
-            if (this.election[0] == '' || this.election[0] == null) {
-              this.errorMessage = "⚠️ Election not found.";
-              this.voting = 2;
-              return;
-            }else if(this.email.includes(this.election[5]) == false){
-              this.errorMessage = "⚠️ You are not qualified to vote.";
-            }else{
-              if (this.role === 'organizer'){
-                this.router.navigate(['/']);
-                this.electionId = null;
-                return;
-              }else{
-                this.voting = 1;
-              }
-            }
-          });
+          
+          this.toggleVote();
           
         });
       }

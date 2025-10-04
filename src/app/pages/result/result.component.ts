@@ -6,6 +6,8 @@ import { AuthService } from '../../../services/auth.service';
 import { Observable } from 'rxjs';
 import { User } from 'firebase/auth';
 import { validateHorizontalPosition } from '@angular/cdk/overlay';
+import { ActivatedRoute } from '@angular/router';
+
 @Component({
   selector: 'app-result',
   standalone: true,
@@ -37,13 +39,22 @@ export class ResultComponent {
       } else {
         
       }
+
+      this.route.paramMap.subscribe(params => {
+          this.electionId = params.get('electionId');
+          
+          this.toggleResult();
+          
+        });
+
+
     });
   }
 
   // All candidates results
   election: { results: any[], winners: any[] } = { results: [], winners: [] };
 
-  constructor(private backendService: BackendService, private authService: AuthService) {
+  constructor(private backendService: BackendService, private authService: AuthService, private route: ActivatedRoute) {
     this.user$ = this.authService.authState$;
     this.role$ = this.authService.role$;
   }

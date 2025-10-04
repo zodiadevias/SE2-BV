@@ -178,10 +178,13 @@ async submit() {
 
     // backend might return { electionId } or raw number — handle both
     const createdElectionId = Number(
-      electionRes?.electionId ?? electionRes ?? NaN
+      electionRes.electionId ?? NaN
     );
+
     if (!createdElectionId || Number.isNaN(createdElectionId)) {
+      console.log(electionRes);
       throw new Error('Unable to determine created electionId from response: ' + JSON.stringify(electionRes));
+
     }
 
     // 2. Upload + collect candidates
