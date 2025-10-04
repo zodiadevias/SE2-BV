@@ -5,6 +5,7 @@ import ElectionComponent from './pages/election/election.component';
 import { ResultComponent } from './pages/result/result.component';
 import { UserComponent } from './user/user.component';
 import { VoteComponent } from './pages/vote/vote.component';
+import { RouterModule } from '@angular/router';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'app' },
@@ -23,9 +24,10 @@ export const routes: Routes = [
     component: UserComponent,
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      { path: 'dashboard', component: DashboardComponent, title: 'User Dashboard · SE BlockVote' },
+      { path: 'dashboard', component: DashboardComponent, title: 'Voter Dashboard · SE BlockVote' },
       { path: 'vote', component: VoteComponent, title: 'Vote · SE BlockVote' },
-      { path: 'result', component: ResultComponent, title: 'User Results · SE BlockVote' },
+      { path: 'vote/:electionId', component: VoteComponent, title: 'Vote · SE BlockVote' },
+      { path: 'result', component: ResultComponent, title: 'Election Results · SE BlockVote' },
     ],
   },
   { path: '**', redirectTo: 'app' },

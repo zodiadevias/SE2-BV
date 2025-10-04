@@ -1,6 +1,6 @@
-@if(voting) {
+@if(voting==1) {
 
-  <button class="button muted" style="margin-bottom:1rem;" (click)="toggleVote()">Back</button>
+  <button class="button muted" style="margin-bottom:1rem;" (click)="back()">Back</button>
 
   <div class="container" style="margin-bottom:1rem;">
     <div class="card">
@@ -9,10 +9,11 @@
       </div>
       <div class="card-body">
         <div class="muted">Election ID: {{ electionId }}</div>
-        <div class="muted">Start Date: {{ election[3] }}</div>
-        <div class="muted">End Date: {{ election[4] }}</div>
+        <div class="muted">Start Date: {{ election[3] | date:'dd/MM/yyyy, h:mm a' }}</div>
+        <div class="muted">End Date: {{ election[4] | date:'dd/MM/yyyy, h:mm a' }}</div>
         <div class="muted">Allowed Domains: {{ election[5] }}</div>
       </div>
+      
     </div>
   </div>
 
@@ -85,7 +86,7 @@
   </div>
 }
 
-@if(!voting) {
+@if(voting==2) {
   <div class="container">
     <div class="card">
       <div class="card-header">
@@ -116,3 +117,6 @@
     </div>
   </div>
 }
+
+
+

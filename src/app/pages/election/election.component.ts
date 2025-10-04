@@ -323,7 +323,7 @@ getCandidate(electionId: number, candidateId: number) {
         this.email.toString()
       );
 
-      this.firebaseService.addToHistory(this.email, 'Election Updated', updateRes.txHash, new Date());
+      this.firebaseService.addToHistory(this.email, 'Election Updated', updateRes.toString(), new Date());
 
       alert('Election updated successfully ✅');
 
@@ -407,7 +407,7 @@ async updateCandidate() {
     this.firebaseService.addToHistory(
       this.email,
       'Candidate Updated',
-      updateRes.txHash,
+      updateRes.toString(),
       new Date()
     );
 

@@ -1,1 +1,16 @@
-{}
+{
+  "hosting": {
+    "public": "dist/se-block-vote/browser",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

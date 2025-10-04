@@ -4,11 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
 import { FirebaseService } from '../../../services/firebase.service';
 import { BackendService } from '../../../services/backend.service';
+import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
+import { DatePipe } from '@angular/common';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-vote',
   standalone: true,
-  imports: [NgFor, NgIf, NgClass, FormsModule],
+  imports: [NgFor, NgIf, NgClass, FormsModule, DatePipe],
   templateUrl: './vote.component.html',
   styleUrl: './vote.component.css'
 })
@@ -16,23 +20,71 @@ export class VoteComponent {
   constructor(
     private authService: AuthService,
     private firebaseService: FirebaseService,
-    private backendService: BackendService
-  ) {}
+    private backendService: BackendService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
+    
+  }
 
   email: any;
+  voting : number = 0;
+  electionId: any;
+  election: any;
+  notFound = false;
+  role: any;
 
   ngOnInit() {
     this.authService.authState$.subscribe(user => {
       if (user) {
         this.email = user.email;
+        this.authService.role$.subscribe(role => {
+          if (role) {
+            this.role = role;
+            
+          }
+        });
+        this.route.paramMap.subscribe(params => {
+          this.electionId = params.get('electionId');
+          console.log(this.role);
+          this.toggleVote().then(() => {
+
+            if(this.role === 'organizer'){
+              this.router.navigate(['/']);
+              this.electionId = null;
+              return;
+            }else if(this.role === 'voter'){
+              this.voting = 1;
+              console.log(this.role);
+            }
+
+            if (this.election[0] == '' || this.election[0] == null) {
+              this.errorMessage = "⚠️ Election not found.";
+              this.voting = 2;
+              return;
+            }else if(this.email.includes(this.election[5]) == false){
+              this.errorMessage = "⚠️ You are not qualified to vote.";
+            }else{
+              if (this.role === 'organizer'){
+                this.router.navigate(['/']);
+                this.electionId = null;
+                return;
+              }else{
+                this.voting = 1;
+              }
+            }
+          });
+          
+        });
       }
     });
+
+    
+    
     
   }
 
-  voting = false;
-  electionId: any;
-  election: any;
+  
 
   candidatesByPosition: any[] = [];
 
@@ -93,7 +145,7 @@ async submitVotes(): Promise<void> {
     
     const response = await this.backendService.vote(this.electionId, candidateIds, this.email);
 
-    this.lastVotedMessage = `✅ Votes submitted successfully! TxHash: ${response.txHash}`;
+    this.lastVotedMessage = `✅ Votes submitted successfully! TxHash: ${response}`;
     console.log("Vote response:", response);
   } catch (err: any) {
     console.error("Vote error:", err);
@@ -142,22 +194,31 @@ async submitVotes(): Promise<void> {
 errorMessage = '';
 
   async toggleVote() {
+    this.errorMessage = '';
     this.election = await this.backendService.getElectionDetails(this.electionId);
     console.log(typeof(this.email) , typeof(this.election[5]));
     console.log("Election details:", this.election);
-    if (!this.election) {
+    if (this.election[0] == '' || this.election[0] == null) {
       this.errorMessage = "⚠️ Election not found.";
       return;
     }
-    if (!this.election[1]) {
-      this.errorMessage = "⚠️ Election is not open.";
-      return;
-    }
-    if (this.email.includes(this.election[5]) == false) {
+    else if (this.email.includes(this.election[5]) == false) {
       this.errorMessage = "⚠️ You are not qualified to vote.";
       return;
     }
     await this.fetchCandidates();
-    this.voting = !this.voting;
+    if(this.election){
+      this.voting = 1;
+      this.router.navigate(['user/vote/' + this.electionId]);
+      this.errorMessage = '';
+    }
+  }
+
+
+  back(){
+    this.election = undefined;
+    this.router.navigate(['user/vote']);
+    this.errorMessage = '';
+    this.voting = 2;
   }
 }
