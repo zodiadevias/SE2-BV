@@ -1,0 +1,116 @@
+/* Dashboard Container */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  width: 100%;
+}
+
+/* Dashboard Grid Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Elections Grid */
+.elections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Voted Elections Grid */
+.voted-elections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Election Cards */
+.election-card {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-elev) 100%);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.election-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+/* Activity Card */
+.activity-card {
+  margin-top: 1rem;
+}
+
+/* Transaction Hash Styling */
+.tx-hash {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding: 0.75rem;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .elections-grid,
+  .voted-elections-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0.5rem;
+  }
+  
+  .dashboard-grid {
+    gap: 0.5rem;
+  }
+  
+  .elections-grid,
+  .voted-elections-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .election-card {
+    margin-bottom: 0.5rem;
+  }
+  
+  .tx-hash {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 0.25rem;
+  }
+  
+  .election-card .card-header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .election-card .card-body {
+    padding: 0.75rem;
+  }
+  
+  .tx-hash {
+    font-size: 0.7rem;
+  }
+}

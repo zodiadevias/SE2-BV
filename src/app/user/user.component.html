@@ -2,19 +2,28 @@
   <header class="topbar">
     <div class="brand">
       <img src="/img/BlockVote.png" style="width: 50px;">
-      SE BlockVote — Voter
+      <span class="brand-text">SE BlockVote — Voter</span>
     </div>
     <div style="display:flex; gap:.5rem; align-items:center;">
-      <span class="badge success">Secure • On-chain</span>
+      @if (isMobile) {
+        <button class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      }
+      <span class="badge success mobile-hidden">Secure • On-chain</span>
     </div>
   </header>
 
   <div class="shell-body">
-    <aside class="sidebar">
+    <aside class="sidebar" [class.open]="mobileMenuOpen" (click)="closeMobileMenu()">
       <app-left-sidebar variant="user"></app-left-sidebar>
     </aside>
 
-    <main class="content">
+    <main class="content" (click)="closeMobileMenu()">
       <router-outlet />
     </main>
   </div>

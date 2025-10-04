@@ -1,75 +1,80 @@
 @if(role === 'organizer'){
-  <!-- <div class="container grid grid-2">
-    <div class="card">
-      <div class="card-header"><div class="card-title">Registered Voters</div><span class="badge success">Updated</span></div>
-      <div class="card-body">
-        <p>Registered voter list with on-chain verification.</p>
+  <div class="dashboard-container">
+    <div class="dashboard-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Registered Voters</div>
+          <span class="badge success">Updated</span>
+        </div>
+        <div class="card-body">
+          <p>Registered voter list with on-chain verification.</p>
+        </div>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><div class="card-title">Active Elections</div><span class="badge success">Live</span></div>
-      <div class="card-body">
-        <div class="grid grid-3">
-          <div class="card" *ngFor="let i of [1,2,3,4,5,6]">
-            <div class="card-header"><div class="card-title">Election {{ i }}</div></div>
-            <div class="card-body">
-              <p>Placeholder description of an active election.</p>
+      
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Active Elections</div>
+          <span class="badge success">Live</span>
+        </div>
+        <div class="card-body">
+          <div class="elections-grid">
+            <div class="card election-card" *ngFor="let i of [1,2,3,4,5,6]">
+              <div class="card-header">
+                <div class="card-title">Election {{ i }}</div>
+              </div>
+              <div class="card-body">
+                <p>Placeholder description of an active election.</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div> -->
 
-  <div class="container card" style="margin-top:1rem;">
-    <div class="card-header"><div class="card-title">Recent Activity</div></div>
-    <div class="card-body" style="overflow:auto;">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Event</th>
-            <th>Tx Hash</th>
-          </tr>
-        </thead>
-        
-          <tbody>
-            <tr *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
-              <ng-container *ngIf="item.email === email">
-                <td>{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
-                <td>{{ item.name }}</td>
-                <td>{{ item.txHash }}</td>
-              </ng-container>
-            </tr>
-          </tbody>
-        
-      </table>
+    <div class="card activity-card">
+      <div class="card-header">
+        <div class="card-title">Recent Activity</div>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Event</th>
+                <th>Tx Hash</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
+                <ng-container *ngIf="item.email === email">
+                  <td>{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
+                  <td>{{ item.name }}</td>
+                  <td class="tx-hash">{{ item.txHash }}</td>
+                </ng-container>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 }
 
 @if(role==='voter'){
-  <div class="container grid grid-2">
+  <div class="dashboard-container">
     <div class="card">
-      <div class="card-header"><div class="card-title">Upcoming Elections</div><span class="badge success">Live</span></div>
-      <div class="card-body">
-        <div class="grid grid-3">
-          <div class="card" *ngFor="let i of [1,2,3,4,5,6]">
-            <div class="card-header"><div class="card-title">Election {{ i }}</div></div>
-            <div class="card-body">
-              <p>Placeholder description of an upcoming election.</p>
-            </div>
-          </div>
-        </div>
+      <div class="card-header">
+        <div class="card-title">Elections You Have Voted In</div>
+        <span class="badge success">Updated</span>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><div class="card-title">Elections You Have Voted In</div><span class="badge success">Updated</span></div>
       <div class="card-body">
-        <div class="grid grid-3">
-          <div class="card" *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
+        <div class="voted-elections-grid">
+          <div class="card election-card" *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
             <ng-container *ngIf="item.email === email && item.name === 'Voted in election'">
-              <div class="card-header"><div class="card-title">Election {{ item.electionId }}</div></div>
+              <div class="card-header">
+                <div class="card-title">Election {{ item.electionId }}</div>
+              </div>
               <div class="card-body">
                 <p>Placeholder description of an election you have voted in.</p>
               </div>
