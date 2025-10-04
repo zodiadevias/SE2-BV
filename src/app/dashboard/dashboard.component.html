@@ -1,36 +1,5 @@
 @if(role === 'organizer'){
   <div class="dashboard-container">
-    <div class="dashboard-grid">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Registered Voters</div>
-          <span class="badge success">Updated</span>
-        </div>
-        <div class="card-body">
-          <p>Registered voter list with on-chain verification.</p>
-        </div>
-      </div>
-      
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Active Elections</div>
-          <span class="badge success">Live</span>
-        </div>
-        <div class="card-body">
-          <div class="elections-grid">
-            <div class="card election-card" *ngFor="let i of [1,2,3,4,5,6]">
-              <div class="card-header">
-                <div class="card-title">Election {{ i }}</div>
-              </div>
-              <div class="card-body">
-                <p>Placeholder description of an active election.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="card activity-card">
       <div class="card-header">
         <div class="card-title">Recent Activity</div>
