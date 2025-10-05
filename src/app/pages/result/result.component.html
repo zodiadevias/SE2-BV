@@ -1,5 +1,5 @@
 <div *ngIf="toggle">
-  <button class="button muted" style="margin-bottom:1rem;" (click)="toggleResult()">Back</button>
+  <button class="button muted" style="margin-bottom:1rem;" (click)="back()">Back</button>
 
   <!-- All candidates results -->
   <div class="container card">
@@ -62,13 +62,14 @@
       </ng-template>
     </div>
   </div>
-</div>
-
   <!-- Close election button -->
   <div class="container" style="margin-top:1rem;" *ngIf="isOpen==true && variant == 'organizer'">
     
     <button class="button danger" (click)="closeElection()">Close Election</button>
   </div>
+</div>
+
+  
 
 <!-- Election ID input form -->
 <div *ngIf="!toggle">

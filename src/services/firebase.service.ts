@@ -26,6 +26,20 @@ export class FirebaseService {
     });
   }
 
+  addVoteHistory(email: string, electionId: number, electionName: string, txHash: string, date: Date) {
+    const historyRef = doc(this.firestore, `voteHistory/${new Date().toISOString()}`);
+    const data = {
+      email,
+      electionId,
+      electionName,
+      txHash,
+      date: date.toISOString()
+    };
+    setDoc(historyRef, data).then(() => {
+      this.historySubject.next([...this.historySubject.getValue(), data]);
+    });
+  }
+
 
    getHistory(): Observable<any[]> {
     const historyRef = collection(this.firestore, 'history');

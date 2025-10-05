@@ -43,18 +43,19 @@ export class VoteComponent {
             if (this.role === 'organizer') {
               this.voting = 0;
             }else if (this.role === 'voter') {
+              this.route.paramMap.subscribe(params => {
+                this.electionId = params.get('electionId');
+                
+                this.toggleVote();
+                
+              });
               this.voting = 2;
             }else{
               this.voting = 0;
             }
           }
         });
-        this.route.paramMap.subscribe(params => {
-          this.electionId = params.get('electionId');
-          
-          this.toggleVote();
-          
-        });
+        
       }
     });
 
@@ -124,11 +125,11 @@ async submitVotes(): Promise<void> {
     
     const response = await this.backendService.vote(this.electionId, candidateIds, this.email);
 
-    this.lastVotedMessage = `✅ Votes submitted successfully! TxHash: ${response}`;
+    this.lastVotedMessage = `✅ Votes submitted successfully! TxHash: ${response.transactionHash}`;
     console.log("Vote response:", response);
   } catch (err: any) {
     console.error("Vote error:", err);
-    this.lastVotedMessage = `❌ Error submitting votes: ${err.response.data.error || err}`;
+    this.lastVotedMessage = `❌ Error submitting votes: ${err.message}`;
   }
 }
 
@@ -195,9 +196,13 @@ errorMessage = '';
 
 
   back(){
-    this.election = undefined;
+    this.election = null;
     this.router.navigate(['user/vote']);
     this.errorMessage = '';
     this.voting = 2;
+  }
+
+  ngOnDestroy() {
+    this.electionId = null;
   }
 }

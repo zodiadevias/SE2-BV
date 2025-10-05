@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { User } from 'firebase/auth';
 import { validateHorizontalPosition } from '@angular/cdk/overlay';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-result',
@@ -54,7 +55,7 @@ export class ResultComponent {
   // All candidates results
   election: { results: any[], winners: any[] } = { results: [], winners: [] };
 
-  constructor(private backendService: BackendService, private authService: AuthService, private route: ActivatedRoute) {
+  constructor(private backendService: BackendService, private authService: AuthService, private route: ActivatedRoute, private router: Router) {
     this.user$ = this.authService.authState$;
     this.role$ = this.authService.role$;
   }
@@ -63,6 +64,7 @@ export class ResultComponent {
 
   async toggleResult() {
     this.checkElectionOpen();
+    this.router.navigate(['user/result', this.electionId]);
     if (!this.toggle && this.electionId) {
       const res: any = await this.backendService.getElectionResults(Number(this.electionId));
 
@@ -90,9 +92,11 @@ export class ResultComponent {
         }
       }
       this.election.winners = Object.values(winnersMap);
+
+      this.toggle = true;
     }
 
-    this.toggle = !this.toggle;
+    
   }
 
 
@@ -116,6 +120,16 @@ export class ResultComponent {
     }
   }
 
+  back() {
+    this.toggle = false;
+    this.election = { results: [], winners: [] };
+    this.electionId = null;
+    this.router.navigate(['user/result']);
+  }
 
+
+  ngOnDestroy() {
+    this.electionId = null;
+  }
 
 }
