@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule, NgFor } from '@angular/common';
 import { FirebaseService } from '../../services/firebase.service';
 import { AuthService } from '../../services/auth.service';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -13,9 +13,10 @@ import { AuthService } from '../../services/auth.service';
 export class DashboardComponent { 
 
   history$: any[] = [];
+  voteHistory$: any[] = [];
   email: any;
   role : any;
-  constructor(public firebaseService: FirebaseService, public authService: AuthService) {
+  constructor(public firebaseService: FirebaseService, public authService: AuthService, public router: Router) {
     this.firebaseService.getHistory().subscribe(data => {
       this.history$ = data;
     });
@@ -24,6 +25,10 @@ export class DashboardComponent {
   ngOnInit() {
     this.firebaseService.getHistory().subscribe(data => {
       this.history$ = data;
+    });
+
+    this.firebaseService.getVoteHistory().subscribe(data => {
+      this.voteHistory$ = data;
     });
 
     this.authService.authState$.subscribe(user => {
@@ -41,6 +46,9 @@ export class DashboardComponent {
 
   
 
+  openElection(electionId: number) {
+    this.router.navigate(['user/vote', electionId]);
+  }
 
   
   

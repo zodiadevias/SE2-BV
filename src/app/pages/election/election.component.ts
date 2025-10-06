@@ -19,6 +19,8 @@ export default class ElectionComponent {
   updateElectionForm: FormGroup;
   cdnUrl: string | null = null;
 
+  message: string | null = null;
+
   constructor(
     private readonly formBuilder: FormBuilder,
     private backendService: BackendService,
@@ -60,9 +62,17 @@ export default class ElectionComponent {
   }
 
   ngOnInit() {
+    
     this.authService.authState$.subscribe(user => {
       if (user) {
         this.email = user.email;
+        this.authService.role$.subscribe(role => {
+          if (role === 'voter') {
+            this.toggle = 'notOrg';
+          }else if(role === 'organizer') {
+            this.toggle = 'create';
+          }
+        })
         this.getOwnedElections();
       }
     });
@@ -149,11 +159,13 @@ export default class ElectionComponent {
 }
 
 submitting = false;
+deleting = false;
 
 
   // 🔹 Submit Form
 // replace your existing submit() with this
 async submit() {
+  this.message = null;
   console.log('Submit form');
   if (this.electionForm.invalid) {
     this.electionForm.markAllAsTouched();
@@ -223,7 +235,7 @@ async submit() {
     // 4. Save history (include electionId for clarity)
     this.firebaseService.addToHistory(this.email, 'Election Created', electionRes.txHash, new Date());
 
-    alert('Election created successfully ✅');
+    this.message = 'Election created successfully!';
 
     // 5. Reset form
     this.electionForm.reset();
@@ -235,7 +247,8 @@ async submit() {
     this.positionPresets.push(this.formBuilder.group({ name: new FormControl<string>('Secretary') }));
   } catch (err: any) {
     console.error(err);
-    alert('Something went wrong ❌ — ' + (err?.message ?? err));
+    
+    this.message = 'Something went wrong ❌ — ' + (err?.message ?? err);
   } finally {
     this.submitting = false;
     this.electionForm.enable(); // re-enable after submit
@@ -280,7 +293,7 @@ getCandidate(electionId: number, candidateId: number) {
 
 
   // FOR UPDATE CANDIDATES AND UPDATE ELECTION
-  toggle = 'create';
+  toggle = '';
 
   electionId: any;
   electionName: string | null = null;
@@ -289,6 +302,7 @@ getCandidate(electionId: number, candidateId: number) {
   candidates: any | null = null;
 
   openElection(electionId: number, electionName: string) {
+    this.message = null;
     this.toggle = 'update';
     this.electionId = electionId;
     this.electionName = electionName;
@@ -312,6 +326,14 @@ getCandidate(electionId: number, candidateId: number) {
   }
 
   async updateElection() {
+    this.message = null;
+    
+    if(this.election["1"] == false){
+      this.message = "Election is closed, cannot update";
+      return;
+    }
+
+
     this.submitting = true;
     this.electionForm.disable(); // disable while submitting
 
@@ -328,7 +350,8 @@ getCandidate(electionId: number, candidateId: number) {
 
       this.firebaseService.addToHistory(this.email, 'Election Updated', updateRes.transactionHash.toString(), new Date());
 
-      alert('Election updated successfully ✅');
+      
+      this.message = 'Election updated successfully ✅';
 
       // reset form
       this.updateElectionForm.reset();
@@ -346,7 +369,7 @@ getCandidate(electionId: number, candidateId: number) {
 
     } catch (err: any) {
       console.error(err);
-      alert('Something went wrong ❌ — ' + (err?.message ?? err));
+      this.message = 'Something went wrong ❌ — ' + (err?.message ?? err);
     } finally {
       this.submitting = false;
       this.electionForm.enable(); // re-enable after submit
@@ -375,6 +398,13 @@ getCandidate(electionId: number, candidateId: number) {
 
 
 async updateCandidate() {
+  this.message = null;
+
+  if(this.election["1"] == false){
+    this.message = "Election is closed, cannot update";
+    return;
+  }
+
   if (!this.candidate) return;
   this.submitting = true;
 
@@ -414,12 +444,12 @@ async updateCandidate() {
       new Date()
     );
 
-    alert('Candidate updated successfully ✅');
+    this.message = 'Candidate updated successfully ✅';
     this.toggle = 'update'; // go back to election update view
     this.getElectionCandidates(this.electionId); // refresh list
   } catch (err: any) {
     console.error(err);
-    alert('Something went wrong ❌ — ' + (err?.message ?? err));
+    this.message = 'Something went wrong ❌ — ' + (err?.message ?? err);
   } finally {
     this.submitting = false;
     this.selectedCandidateFile = null;
@@ -436,6 +466,7 @@ async updateCandidate() {
 
 
   candidateSelected(candidateId: number) {
+    this.message = null;
     this.backendService.getElectionCandidate(this.electionId, candidateId).then((res: any) => {
       this.candidate = res;
       this.candidateId = candidateId;
@@ -446,8 +477,25 @@ async updateCandidate() {
   }
   
 
-
-
+  deleteCandidate(candidate: string) {
+    this.message = null;
+    if(this.election["1"] == false){
+      this.message = "Election is closed, cannot delete";
+      return;
+    }
+    this.backendService.getCandidateIdByName(this.electionId, candidate).then((res: any) => {
+      this.backendService.deleteCandidate(this.electionId, res).then(() => {
+        this.getElectionCandidates(this.electionId);
+      }).catch((err: any) => {
+        console.error("Error deleting candidate:", err);
+        this.message = 'Something went wrong ❌ — ' + (err?.message ?? err);
+      });
+    }).catch((err: any) => {
+      console.error("Error getting candidate ID:", err);
+      this.message = 'Something went wrong ❌ — ' + (err?.message ?? err);
+    });
+    
+  }
 
 
 }

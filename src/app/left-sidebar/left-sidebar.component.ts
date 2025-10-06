@@ -63,8 +63,9 @@ export class LeftSidebarComponent {
   }
   async logout() {
     try{
+      this.router.navigate(['/']);
       await this.authService.logout();
-      this.router.navigate(['/dashboard']);
+      
       console.log('Logged out!');
     }catch(err: any){
       console.log(err.message);

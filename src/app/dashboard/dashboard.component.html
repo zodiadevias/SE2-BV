@@ -38,16 +38,19 @@
         <span class="badge success">Updated</span>
       </div>
       <div class="card-body">
+        
         <div class="voted-elections-grid">
-          <div class="card election-card" *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
-            <ng-container *ngIf="item.email === email && item.name === 'Voted in election'">
+          <div class="card election-card" *ngFor="let item of (voteHistory$ | slice:0:voteHistory$.length).reverse()">
+            <ng-container *ngIf="item.email === email">
               <div class="card-header">
-                <div class="card-title">Election {{ item.electionId }}</div>
+                <div class="card-title">{{ item.electionId }}: {{ item.electionName }}</div>
+                <button class="button ghost" type="button" (click)="openElection(item.electionId)">View</button>
               </div>
               <div class="card-body">
-                <p>Placeholder description of an election you have voted in.</p>
+                <p>Voted: {{ item.date | date:'dd MMM yyyy, h:mm a' }}</p>
               </div>
             </ng-container>
+            
           </div>
         </div>
       </div>

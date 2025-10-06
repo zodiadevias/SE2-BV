@@ -1,4 +1,8 @@
+
 @if(toggle=='create'){
+  <div class="alert danger" *ngIf="message" style="margin-top:1rem; white-space: pre-line; text-align:center;">
+      {{ message }}
+  </div>
   <div class="container">
   <form [formGroup]="electionForm" (ngSubmit)="submit()" class="card">
     <div class="card-header">
@@ -225,7 +229,9 @@
                 {{ submitting ? 'Updating...' : 'Update' }}
               </button>
             </div>
-
+            <div class="alert danger" *ngIf="message" style="margin-top:1rem; white-space: pre-line; text-align:center;">
+                {{ message }}
+            </div>
         </form>
     </div>
   
@@ -262,77 +268,151 @@
 @if(toggle == 'candidate'){
 <div class="container candidate-details" *ngIf="toggle == 'candidate'">
   <div class="back-button">
-    <button class="button muted" type="button" (click)="toggle='update'">Back</button>
+    <button class="button muted" type="button" (click)="toggle='update';message=null">Back</button>
   </div>
+
   <div class="card">
     <div class="card-header">
       <div class="card-title">Candidate Details</div>
     </div>
-    <div class="card-body">
-  <img [src]="candidate.cdn" alt="{{ candidate.name }}" 
-       style="max-width: 100px; border-radius: 6px; margin: 1rem auto; display: block;" />
 
-  <div class="grid grid-2">
-    <div>
-      <label>Candidate Name</label>
-      <input class="input" placeholder="e.g., Alice Johnson" [(ngModel)]="candidate.name" />
-    </div>
-    <div>
-      <label>Partylist</label>
-      <input class="input" placeholder="e.g., Unity Party" [(ngModel)]="candidate.partylist" />
-    </div>
-    <div>
-      <label>Position</label>
-      <input class="input" placeholder="e.g., President" [(ngModel)]="candidate.position" />
-    </div>
-    <div>
-      <label>Platform</label>
-      <textarea class="input" rows="2" placeholder="Campaign platform" [(ngModel)]="candidate.platform"></textarea>
-    </div>
-    <div>
-      <label>Image</label>
-      <div class="image-upload-container">
-        <div class="image-upload-area" [class.has-image]="candidate.cdn">
+    <div class="card-body">
+      <img 
+        [src]="candidate.cdn" 
+        alt="{{ candidate.name }}" 
+        style="max-width: 100px; border-radius: 6px; margin: 1rem auto; display: block;" 
+      />
+
+      <div class="grid grid-2">
+        <div>
+          <label>Candidate Name</label>
           <input 
-            type="file" 
-            accept="image/*" 
-            (change)="onCandidateImageSelected($event)" 
-            class="image-upload-input"
-            id="candidate-image-upload"
+            class="input" 
+            placeholder="e.g., Alice Johnson" 
+            [(ngModel)]="candidate.name" 
           />
-          <label for="candidate-image-upload" class="image-upload-label">
-            <div class="upload-icon" *ngIf="!candidate.cdn">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7,10 12,15 17,10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-            </div>
-            <div class="upload-text" *ngIf="!candidate.cdn">
-              <span class="upload-title">Upload Image</span>
-              <span class="upload-subtitle">Click to browse or drag & drop</span>
-            </div>
-            <div class="image-preview" *ngIf="candidate.cdn">
-              <img [src]="candidate.cdn" alt="Preview" class="preview-img" />
-              <div class="image-overlay">
-                <span class="change-text">Change Image</span>
-              </div>
-            </div>
-          </label>
         </div>
+
+        <div>
+          <label>Partylist</label>
+          <input 
+            class="input" 
+            placeholder="e.g., Unity Party" 
+            [(ngModel)]="candidate.partylist" 
+          />
+        </div>
+
+        <div>
+          <label>Position</label>
+          <input 
+            class="input" 
+            placeholder="e.g., President" 
+            [(ngModel)]="candidate.position" 
+          />
+        </div>
+
+        <div>
+          <label>Platform</label>
+          <textarea 
+            class="input" 
+            rows="2" 
+            placeholder="Campaign platform" 
+            [(ngModel)]="candidate.platform">
+          </textarea>
+        </div>
+
+        <div>
+          <label>Image</label>
+          <div class="image-upload-container">
+            <div class="image-upload-area" [class.has-image]="candidate.cdn">
+              <input 
+                type="file" 
+                accept="image/*" 
+                (change)="onCandidateImageSelected($event)" 
+                class="image-upload-input"
+                id="candidate-image-upload"
+              />
+
+              <label for="candidate-image-upload" class="image-upload-label">
+                <!-- Default upload prompt -->
+                <div class="upload-icon" *ngIf="!candidate.cdn">
+                  <svg 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    stroke-width="2"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7,10 12,15 17,10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                </div>
+
+                <div class="upload-text" *ngIf="!candidate.cdn">
+                  <span class="upload-title">Upload Image</span>
+                  <span class="upload-subtitle">Click to browse or drag & drop</span>
+                </div>
+
+                <!-- Image preview when uploaded -->
+                <div class="image-preview" *ngIf="candidate.cdn">
+                  <img 
+                    [src]="candidate.cdn" 
+                    alt="Preview" 
+                    class="preview-img" 
+                  />
+                  <div class="image-overlay">
+                    <span class="change-text">Change Image</span>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div 
+        style="margin-top:1rem; text-align:center; display:flex; justify-content:center; gap:.5rem;"
+      >
+        <button 
+          class="btn btn-primary button" 
+          type="button" 
+          (click)="updateCandidate()"
+        >
+          {{ submitting ? 'Updating...' : 'Save Candidate' }}
+        </button>
+
+        <button 
+          class="btn btn-danger button" 
+          type="button" 
+          (click)="deleteCandidate(candidate.name)"
+        >
+          {{ deleting ? 'Deleting...' : 'Delete Candidate' }}
+        </button>
+      </div>
+    </div>
+    <div class="alert danger" *ngIf="message" style="margin-top:1rem; white-space: pre-line; text-align:center;">
+        {{ message }}
+    </div>
+  </div>
+</div>
+
+}
+
+
+@if(toggle == 'notOrg'){
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">You are not an organizer</div>
+      </div>
+      <div class="card-body">
+        <p>Only organizers can create elections.</p>
       </div>
     </div>
   </div>
-
-  <div style="margin-top:1rem; text-align:center;">
-    <button class="btn btn-primary button" type="button" (click)="updateCandidate()">
-      {{ submitting ? 'Updating...' : 'Save Candidate' }}
-    </button>
-  </div>
-</div>
-
-  </div>
-</div>
 }
 
 

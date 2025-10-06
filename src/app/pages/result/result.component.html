@@ -1,3 +1,4 @@
+<!-- When results are toggled ON -->
 <div *ngIf="toggle">
   <button class="button muted" style="margin-bottom:1rem;" (click)="back()">Back</button>
 
@@ -7,8 +8,7 @@
       <div class="card-title">Live Election Results</div>
     </div>
     <div class="card-body" style="overflow:auto;">
-      <table class="table" *ngIf="election?.results?.length ?? 0 > 0; else noResults">
-
+      <table class="table" *ngIf="(election?.results?.length ?? 0) > 0; else noResults">
         <thead>
           <tr>
             <th>Candidate</th>
@@ -34,13 +34,12 @@
   </div>
 
   <!-- Winners per position -->
-  <div class="container card" style="margin-top:1rem;" *ngIf="isOpen==false">
+  <div class="container card" style="margin-top:1rem;" *ngIf="isOpen == false">
     <div class="card-header">
       <div class="card-title">Winners</div>
     </div>
     <div class="card-body" style="overflow:auto;">
-      <table class="table" *ngIf="election?.winners?.length ?? 0 > 0 ; else noResults">
-
+      <table class="table" *ngIf="(election?.winners?.length ?? 0) > 0; else noWinners">
         <thead>
           <tr>
             <th>Candidate</th>
@@ -62,14 +61,41 @@
       </ng-template>
     </div>
   </div>
+
   <!-- Close election button -->
-  <div class="container" style="margin-top:1rem;" *ngIf="isOpen==true && variant == 'organizer'">
-    
-    <button class="button danger" (click)="closeElection()">Close Election</button>
+  <div 
+    class="container" 
+    style="margin-top:1rem;" 
+    *ngIf="isOpen == true && variant == 'organizer'"
+  >
+    <button 
+      class="button danger" 
+      (click)="closeElection()" 
+      [disabled]="isClosing"
+    >
+      {{ isClosing ? 'Closing...' : 'Close Election' }}
+    </button>
+
+    <div style="margin-top:1rem;" *ngIf="closePrompt">
+      <p>Are you sure you want to close this election?</p>
+      <button 
+        class="button" 
+        style="margin-right:.5rem;" 
+        (click)="closeElectionConfirmed()" 
+        [disabled]="isClosing"
+      >
+        Yes
+      </button>
+      <button 
+        class="button" 
+        (click)="closeElectionDenied()" 
+        [disabled]="isClosing"
+      >
+        No
+      </button>
+    </div>
   </div>
 </div>
-
-  
 
 <!-- Election ID input form -->
 <div *ngIf="!toggle">
@@ -79,7 +105,7 @@
         <div class="card-title">Enter Election ID</div>
       </div>
       <div class="card-body">
-        <form (ngSubmit)="toggleResult()">
+        <form (ngSubmit)="toggleResult()" #form="ngForm">
           <div class="form-group">
             <label for="electionId">Election ID</label>
             <input
@@ -92,7 +118,13 @@
             />
           </div>
           <div class="form-group">
-            <button type="submit" class="button">Enter</button>
+            <button 
+              type="submit" 
+              class="button" 
+              [disabled]="isSubmitting || form.invalid"
+            >
+              {{ isSubmitting ? 'Loading Results...' : 'Enter' }}
+            </button>
           </div>
         </form>
       </div>

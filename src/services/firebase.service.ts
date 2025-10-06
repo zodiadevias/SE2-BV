@@ -40,6 +40,11 @@ export class FirebaseService {
     });
   }
 
+  getVoteHistory(): Observable<any[]> {
+    const voteHistoryRef = collection(this.firestore, 'voteHistory');
+    return collectionData(voteHistoryRef, { idField: 'id' }) as Observable<any[]>;
+  }
+
 
    getHistory(): Observable<any[]> {
     const historyRef = collection(this.firestore, 'history');

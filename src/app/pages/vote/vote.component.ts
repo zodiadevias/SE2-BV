@@ -93,20 +93,26 @@ export class VoteComponent {
     this.lastVotedMessage = '';
   }
 
+  isSubmitting = false;
+
+
   // Final submit all votes
 async submitVotes(): Promise<void> {
+  if (this.isSubmitting) return; // Prevent double click
+  this.isSubmitting = true;
+
   if (!this.electionId) {
     this.lastVotedMessage = "⚠️ Election ID not set.";
+    this.isSubmitting = false;
     return;
   }
 
-  // build candidate IDs array
   const candidateIds: number[] = [];
   const votes = this.candidatesByPosition.map(pos => {
     const candidateId = this.selectedCandidates[pos.id];
     const candidate = pos.candidates.find((c: { id: string }) => c.id === candidateId);
     if (candidate) {
-      candidateIds.push(Number(candidate.id)); // Solidity expects uint256[]
+      candidateIds.push(Number(candidate.id));
     }
     return {
       position: pos.name,
@@ -114,24 +120,32 @@ async submitVotes(): Promise<void> {
     };
   });
 
-  // check if any missing selections
   if (votes.some(v => v.candidate === null)) {
-    this.lastVotedMessage =
-      "⚠️ Please choose a candidate for every position before submitting.";
+    this.lastVotedMessage = "⚠️ Please choose a candidate for every position before submitting.";
+    this.isSubmitting = false;
     return;
   }
 
   try {
-    
     const response = await this.backendService.vote(this.electionId, candidateIds, this.email);
+    await this.firebaseService.addVoteHistory(
+      this.email,
+      this.electionId,
+      this.election[0],
+      response.transactionHash,
+      new Date()
+    );
 
     this.lastVotedMessage = `✅ Votes submitted successfully! TxHash: ${response.transactionHash}`;
     console.log("Vote response:", response);
   } catch (err: any) {
     console.error("Vote error:", err);
     this.lastVotedMessage = `❌ Error submitting votes: ${err.message}`;
+  } finally {
+    this.isSubmitting = false; // Re-enable after completion
   }
 }
+
 
 
   async fetchCandidates() {
@@ -180,6 +194,12 @@ errorMessage = '';
     console.log("Election details:", this.election);
     if (this.election[0] == '' || this.election[0] == null) {
       this.errorMessage = "⚠️ Election not found.";
+      return;
+    }else if (this.election[1] == false) {
+      this.errorMessage = "⚠️ Election is closed.";
+      return;
+    }else if (this.election[4] < new Date()) {
+      this.errorMessage = "⚠️ Election has ended.";
       return;
     }
     else if (this.email.includes(this.election[5]) == false) {

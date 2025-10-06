@@ -18,106 +18,108 @@ import { Router } from '@angular/router';
 })
 export class ResultComponent {
   electionId: any;
-  toggle: boolean = false;
-
+  toggle = false;
+  isClosing = false;
+  isSubmitting = false;
   isOpen: any;
-
+  closePrompt = false;
   email: any;
-  variant: string = '';
+  variant = '';
   user$: Observable<User | null>;
   role$: Observable<string | null>;
-  ngOnInit() {
-    this.authService.authState$.subscribe(user => {
-      if(user) {
-        console.log('Logged in as', user.email);
-        this.role$.subscribe(role => {
-          if (role === 'organizer') {
-            this.variant = 'organizer';
-          } else {
-            this.variant = 'user';
-          }
-        });
-      } else {
-        
-      }
 
-      this.route.paramMap.subscribe(params => {
-          this.electionId = params.get('electionId');
-          
-          this.toggleResult();
-          
-        });
+  election: { results: any[]; winners: any[] } = { results: [], winners: [] };
 
-
-    });
-  }
-
-  // All candidates results
-  election: { results: any[], winners: any[] } = { results: [], winners: [] };
-
-  constructor(private backendService: BackendService, private authService: AuthService, private route: ActivatedRoute, private router: Router) {
+  constructor(
+    private backendService: BackendService,
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
     this.user$ = this.authService.authState$;
     this.role$ = this.authService.role$;
   }
 
-
-
-  async toggleResult() {
-    this.checkElectionOpen();
-    this.router.navigate(['user/result', this.electionId]);
-    if (!this.toggle && this.electionId) {
-      const res: any = await this.backendService.getElectionResults(Number(this.electionId));
-
-      const names = res[0];
-      const positions = res[1];
-      const partylists = res[2];
-      const votes = res[3].map((v: string) => Number(v));
-
-      // Fill all candidates results
-      this.election.results = [];
-      for (let i = 0; i < names.length; i++) {
-        this.election.results.push({
-          name: names[i],
-          position: positions[i],
-          partylist: partylists[i],
-          votes: votes[i]
+  ngOnInit() {
+    this.authService.authState$.subscribe(user => {
+      if (user) {
+        this.role$.subscribe(role => {
+          this.variant = role === 'organizer' ? 'organizer' : 'user';
         });
       }
 
-      // Calculate winners per position
-      const winnersMap: { [position: string]: any } = {};
-      for (const cand of this.election.results) {
-        if (!winnersMap[cand.position] || cand.votes > winnersMap[cand.position].votes) {
-          winnersMap[cand.position] = { ...cand };
-        }
-      }
-      this.election.winners = Object.values(winnersMap);
-
-      this.toggle = true;
-    }
-
-    
+      this.route.paramMap.subscribe(params => {
+        this.electionId = params.get('electionId');
+        if (this.electionId) this.toggleResult();
+      });
+    });
   }
 
+  async toggleResult() {
+    if (this.isSubmitting) return; // ⛔ Prevent double click
+    this.isSubmitting = true;
 
+    try {
+      await this.checkElectionOpen();
+      this.router.navigate(['user/result', this.electionId]);
 
+      if (!this.toggle && this.electionId) {
+        const res: any = await this.backendService.getElectionResults(Number(this.electionId));
+        const names = res[0];
+        const positions = res[1];
+        const partylists = res[2];
+        const votes = res[3].map((v: string) => Number(v));
+
+        this.election.results = names.map((name: string, i: number) => ({
+          name,
+          position: positions[i],
+          partylist: partylists[i],
+          votes: votes[i],
+        }));
+
+        // Determine winners
+        const winnersMap: Record<string, any> = {};
+        for (const cand of this.election.results) {
+          if (!winnersMap[cand.position] || cand.votes > winnersMap[cand.position].votes) {
+            winnersMap[cand.position] = { ...cand };
+          }
+        }
+        this.election.winners = Object.values(winnersMap);
+
+        this.toggle = true;
+      }
+    } catch (err) {
+      console.error('Error loading results:', err);
+    } finally {
+      this.isSubmitting = false; // ✅ Allow re-click
+    }
+  }
 
   async checkElectionOpen() {
-    
-      this.isOpen = await this.backendService.isElectionOpen(Number(this.electionId));
-      console.log(this.isOpen);
-    
+    this.isOpen = await this.backendService.isElectionOpen(Number(this.electionId));
   }
 
-
   closeElection() {
-    if (this.electionId) {
-      const confirm = window.confirm('Are you sure you want to close the election?');
-      if (confirm) {
-        this.backendService.closeElection(Number(this.electionId));
-        this.checkElectionOpen();
-      }
+    this.closePrompt = true;
+  }
+
+  async closeElectionConfirmed() {
+    if (!this.electionId || this.isClosing) return; // ⛔ Prevent double click
+    this.isClosing = true;
+
+    try {
+      await this.backendService.closeElection(Number(this.electionId));
+      await this.checkElectionOpen();
+      this.closePrompt = false;
+    } catch (err) {
+      console.error('Error closing election:', err);
+    } finally {
+      this.isClosing = false;
     }
+  }
+
+  closeElectionDenied() {
+    this.closePrompt = false;
   }
 
   back() {
@@ -127,9 +129,8 @@ export class ResultComponent {
     this.router.navigate(['user/result']);
   }
 
-
   ngOnDestroy() {
     this.electionId = null;
   }
-
 }
+
