@@ -101,6 +101,7 @@
                     </div>
 
 
+                    <br>
                     <div>
                       <label>Image</label>
                       <div class="image-upload-container">
@@ -120,6 +121,7 @@
                                 <line x1="12" y1="15" x2="12" y2="3"></line>
                               </svg>
                             </div>
+                            
                             <div class="upload-text" *ngIf="!c.get('imageDataUrl')?.value">
                               <span class="upload-title">Upload Image</span>
                               <span class="upload-subtitle">Click to browse or drag & drop</span>
@@ -167,17 +169,20 @@
               <th></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody *ngIf="ownedElections?.length > 0; else noData">
             <tr *ngFor="let e of ownedElections; let i = index">
               <td>{{ e[1] }}</td>
               <td>{{ e[0] }}</td>
               <td>{{ e[3] | date:'dd/MM/yyyy, h:mm a' }}</td>
               <td>{{ e[4] | date:'dd/MM/yyyy, h:mm a'}}</td>
-              <td><span class="badge success" *ngIf="e[2]==true">Active</span><span class="badge" *ngIf="e[2]==false">Ended</span></td>
+              <td><span class="badge success" *ngIf="e[2] === true">Active</span><span class="badge danger" *ngIf="e[2] === false">Closed</span></td>
               <td style="text-align:right;"><button class="button" type="button" (click)="openElection(e[0],e[1])">Open</button></td>
             </tr>
           </tbody>
         </table>
+        <ng-template #noData>
+          <p>No elections found.</p>
+        </ng-template>
       </div>
     </div>
   </div>
@@ -187,13 +192,18 @@
 
 @if(toggle=='update'){
   <div class="container" style="margin-top:1rem;">
-    <button class="button muted" type="button" (click)="toggle='create'">Back</button>
+    <button class="button muted" type="button" (click)="toggler('create')">Back</button>
   </div>
 <div class="container grid grid-2">
   <div class="card left">
         <form [formGroup]="updateElectionForm" (ngSubmit)="updateElection()" class="card">
           <div class="card-header">
-            <div class="card-title">Election ID: {{ electionId }} - {{ electionName }}</div>
+            <div class="card-title">
+              <span>Election ID: {{ electionId }} - {{ electionName }}</span>
+              <br>
+              <button class="button ghost" type="button" (click)="copyLink()">{{ linkCopied ? 'Link Copied!' : 'Copy Link' }}</button>
+              
+            </div>
           </div>
 
           <div class="card-body">
@@ -268,7 +278,7 @@
 @if(toggle == 'candidate'){
 <div class="container candidate-details" *ngIf="toggle == 'candidate'">
   <div class="back-button">
-    <button class="button muted" type="button" (click)="toggle='update';message=null">Back</button>
+    <button class="button muted" type="button" (click)="toggler('update')">Back</button>
   </div>
 
   <div class="card">

@@ -9,12 +9,12 @@ export class BackendService {
   private web3: Web3;
   private contract: any;
   // private contractAddress = '0x2bd1f45fe793b5057401500c2fccea1677d72496';
-  private contractAddress = '0x5900760eddf3da4a3b8942bb9f7cdf3f8e9c73c4';
+  private contractAddress = '0x68fBA8C4F41E9493dabeCf00C28cC7C65647dDEA';
 
   // ⚠️ Private key exposed – use only for demo/testing
-  private serverAccount = '0x514f2160831880228596a7bE6094A61E9B6d62f8';
+  private serverAccount = '0x436c6e9acaa229387cb96ccfcfb20089e05c4b32';
   private privateKey =
-    '36306509366080fce51467e0e8b0c8702b93b8215d1cf46f997c7e59f5b9a145';
+    '97b0d897b88886b0f4b0574e308e69a4289b8d392394aa4d02ce225203a08730';
 
   constructor() {
     this.web3 = new Web3('https://ethereum-sepolia-rpc.publicnode.com');

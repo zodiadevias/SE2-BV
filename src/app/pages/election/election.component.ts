@@ -235,7 +235,7 @@ async submit() {
     // 4. Save history (include electionId for clarity)
     this.firebaseService.addToHistory(this.email, 'Election Created', electionRes.txHash, new Date());
 
-    this.message = 'Election created successfully!';
+    this.message = 'Election created successfully! ✅ | Election Link: https://blockvote-912af.web.app/user/vote/' + createdElectionId;
 
     // 5. Reset form
     this.electionForm.reset();
@@ -496,6 +496,24 @@ async updateCandidate() {
     });
     
   }
+
+  linkCopied = false;
+
+  copyLink(){
+    navigator.clipboard.writeText("https://blockvote-912af.web.app/user/vote/"+this.electionId);
+    this.linkCopied = true;
+    
+  }
+
+
+  toggler(toggle: string) {
+    this.message = null;
+    this.linkCopied = false;
+    
+    this.toggle = toggle;
+  }
+
+  
 
 
 }

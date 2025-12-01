@@ -35,6 +35,7 @@ contract Voting {
     );
 
     struct Election {
+        string ownerEmail; // <--- ADDED: To track who owns the election
         string name;
         bool isOpen;
         mapping(uint256 => Candidate) candidates; // 1-based index
@@ -74,6 +75,10 @@ contract Voting {
         string memory _email
     ) public {
         electionCount++;
+        
+        // Save the owner email so we can look it up later in closeElection
+        elections[electionCount].ownerEmail = _email; 
+        
         elections[electionCount].name = _name;
         elections[electionCount].isOpen = true;
         elections[electionCount].candidatesCount = 0;
@@ -93,8 +98,6 @@ contract Voting {
             _domainFilter,
             _email
         );
-
-        
     }
 
     function getElectionCount() public view returns (uint256) {
@@ -171,9 +174,26 @@ contract Voting {
         return (e.name, e.isOpen, e.candidatesCount, e.startDate, e.endDate, e.domainFilter);
     }
 
+    // ============================================
+    // UPDATED: Close Election (Syncs ownedElections)
+    // ============================================
     function closeElection(uint256 _electionId) public {
-        require(elections[_electionId].isOpen, "Election is already closed");
-        elections[_electionId].isOpen = false;
+        Election storage e = elections[_electionId];
+        require(e.isOpen, "Election is already closed");
+        
+        // 1. Update the main Election struct
+        e.isOpen = false;
+
+        // 2. Update the ownedElections mapping to keep data in sync
+        string memory owner = e.ownerEmail;
+        CreatedElections[] storage ownerList = ownedElections[owner];
+
+        for (uint256 i = 0; i < ownerList.length; i++) {
+            if (ownerList[i].electionId == _electionId) {
+                ownerList[i].isOpen = false;
+                break;
+            }
+        }
     }
 
     // ============================
@@ -349,7 +369,4 @@ contract Voting {
         Election storage e = elections[_electionId];
         return e.isOpen;
     }
-
-
-
 }

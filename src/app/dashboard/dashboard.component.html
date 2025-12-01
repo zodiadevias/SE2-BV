@@ -15,13 +15,20 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
-                <ng-container *ngIf="item.email === email">
-                  <td>{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
-                  <td>{{ item.name }}</td>
-                  <td class="tx-hash">{{ item.txHash }}</td>
-                </ng-container>
-              </tr>
+              <ng-container *ngIf="(history$ | slice:0:history$.length).reverse().length > 0; else noActivitiesFound">
+                <tr *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
+                    <ng-container *ngIf="item.email === email">
+                      <td>{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
+                      <td>{{ item.name }}</td>
+                      <td class="tx-hash">{{ item.txHash }}</td>
+                    </ng-container>
+                </tr>
+              </ng-container>
+              <ng-template #noActivitiesFound>
+                <tr>
+                  <td colspan="3">No activities found.</td>
+                </tr>
+              </ng-template>
             </tbody>
           </table>
         </div>
