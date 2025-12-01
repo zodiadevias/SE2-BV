@@ -2,102 +2,96 @@
 <div *ngIf="toggle">
   <button class="button muted" style="margin-bottom:1rem;" (click)="back()">Back</button>
 
-  <!-- All candidates results -->
   <div class="container card">
     <div class="card-header">
       <div class="card-title">Live Election Results</div>
     </div>
-    <div class="card-body" style="overflow:auto;">
-      <table class="table" *ngIf="(election?.results?.length ?? 0) > 0; else noResults">
-        <thead>
-          <tr>
-            <th>Candidate</th>
-            <th>Position</th>
-            <th>Party</th>
-            <th>Votes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let candidate of election.results">
-            <td>{{ candidate.name }}</td>
-            <td>{{ candidate.position }}</td>
-            <td>{{ candidate.partylist }}</td>
-            <td>{{ candidate.votes }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="card-body">
+      <div class="table-wrapper">
+        <table class="table" *ngIf="(election?.results?.length ?? 0) > 0; else noResults">
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Position</th>
+              <th>Party</th>
+              <th>Votes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let candidate of election.results">
+              <td data-label="Candidate">{{ candidate.name }}</td>
+              <td data-label="Position">{{ candidate.position }}</td>
+              <td data-label="Party">{{ candidate.partylist }}</td>
+              <td data-label="Votes">{{ candidate.votes }}</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <ng-template #noResults>
-        <p>No results found for this election.</p>
-      </ng-template>
+        <ng-template #noResults>
+          <p>No results found for this election.</p>
+        </ng-template>
+      </div>
     </div>
   </div>
 
-  <!-- Winners per position -->
   <div class="container card" style="margin-top:1rem;" *ngIf="isOpen == false">
     <div class="card-header">
       <div class="card-title">Winners</div>
     </div>
-    <div class="card-body" style="overflow:auto;">
-      <table class="table" *ngIf="(election?.winners?.length ?? 0) > 0; else noWinners">
-        <thead>
-          <tr>
-            <th>Candidate</th>
-            <th>Position</th>
-            <th>Party</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let winner of election.winners">
-            <td>{{ winner.name }}</td>
-            <td>{{ winner.position }}</td>
-            <td>{{ winner.partylist }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="card-body">
+      <div class="table-wrapper">
+        <table class="table" *ngIf="(election?.winners?.length ?? 0) > 0; else noWinners">
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Position</th>
+              <th>Party</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let winner of election.winners">
+              <td data-label="Candidate">{{ winner.name }}</td>
+              <td data-label="Position">{{ winner.position }}</td>
+              <td data-label="Party">{{ winner.partylist }}</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <ng-template #noWinners>
-        <p>No winners found for this election.</p>
-      </ng-template>
+        <ng-template #noWinners>
+          <p>No winners found for this election.</p>
+        </ng-template>
+      </div>
     </div>
   </div>
 
-  <!-- Close election button -->
-  <div 
-    class="container" 
-    style="margin-top:1rem;" 
-    *ngIf="isOpen == true && variant == 'organizer'"
-  >
+  <div class="container" style="margin-top:1rem;" *ngIf="isOpen == true && variant == 'organizer'">
     <button 
       class="button danger" 
       (click)="closeElection()" 
-      [disabled]="isClosing"
-    >
+      [disabled]="isClosing">
       {{ isClosing ? 'Closing...' : 'Close Election' }}
     </button>
 
     <div style="margin-top:1rem;" *ngIf="closePrompt">
       <p>Are you sure you want to close this election?</p>
-      <button 
-        class="button" 
-        style="margin-right:.5rem;" 
-        (click)="closeElectionConfirmed()" 
-        [disabled]="isClosing"
-      >
-        Yes
-      </button>
-      <button 
-        class="button" 
-        (click)="closeElectionDenied()" 
-        [disabled]="isClosing"
-      >
-        No
-      </button>
+      <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+        <button 
+          class="button" 
+          (click)="closeElectionConfirmed()" 
+          [disabled]="isClosing">
+          Yes
+        </button>
+        <button 
+          class="button" 
+          (click)="closeElectionDenied()" 
+          [disabled]="isClosing">
+          No
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Election ID input form -->
 <div *ngIf="!toggle">
   <div class="container">
     <div class="card">
@@ -113,7 +107,7 @@
               id="electionId"
               name="electionId"
               [(ngModel)]="electionId"
-              class="input form-control"
+              class="input"
               required
             />
           </div>
@@ -121,8 +115,7 @@
             <button 
               type="submit" 
               class="button" 
-              [disabled]="isSubmitting || form.invalid"
-            >
+              [disabled]="isSubmitting || form.invalid">
               {{ isSubmitting ? 'Loading Results...' : 'Enter' }}
             </button>
           </div>
@@ -131,3 +124,4 @@
     </div>
   </div>
 </div>
+

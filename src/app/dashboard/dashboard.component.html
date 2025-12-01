@@ -18,15 +18,15 @@
               <ng-container *ngIf="(history$ | slice:0:history$.length).reverse().length > 0; else noActivitiesFound">
                 <tr *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
                     <ng-container *ngIf="item.email === email">
-                      <td>{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
-                      <td>{{ item.name }}</td>
-                      <td class="tx-hash">{{ item.txHash }}</td>
+                      <td data-label="Date">{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
+                      <td data-label="Event">{{ item.name }}</td>
+                      <td data-label="Tx Hash" class="tx-hash">{{ item.txHash }}</td>
                     </ng-container>
                 </tr>
               </ng-container>
               <ng-template #noActivitiesFound>
                 <tr>
-                  <td colspan="3">No activities found.</td>
+                  <td colspan="3" data-label="">No activities found.</td>
                 </tr>
               </ng-template>
             </tbody>
@@ -37,29 +37,36 @@
   </div>
 }
 
-@if(role==='voter'){
+@if(role === 'voter'){
   <div class="dashboard-container">
     <div class="card">
       <div class="card-header">
         <div class="card-title">Elections You Have Voted In</div>
         <span class="badge success">Updated</span>
       </div>
+      
       <div class="card-body">
         
-        <div class="voted-elections-grid">
-          <div class="card election-card" *ngFor="let item of (voteHistory$ | slice:0:voteHistory$.length).reverse()">
-            <ng-container *ngIf="item.email === email">
-              <div class="card-header">
-                <div class="card-title">{{ item.electionId }}: {{ item.electionName }}</div>
-                <button class="button ghost" type="button" (click)="openElection(item.electionId)">View</button>
-              </div>
-              <div class="card-body">
-                <p>Voted: {{ item.date | date:'dd MMM yyyy, h:mm a' }}</p>
-              </div>
-            </ng-container>
-            
+        @if(voteHistory$ && voteHistory$.length > 0) {
+          <div class="voted-elections-grid">
+            <div class="card election-card" *ngFor="let item of (voteHistory$ | slice:0:voteHistory$.length).reverse()">
+              <ng-container *ngIf="item.email === email">
+                <div class="card-header">
+                  <div class="card-title">{{ item.electionId }}: {{ item.electionName }}</div>
+                  <button class="button ghost" type="button" (click)="openElection(item.electionId)">View</button>
+                </div>
+                <div class="card-body">
+                  <p>Voted: {{ item.date | date:'dd MMM yyyy, h:mm a' }}</p>
+                </div>
+              </ng-container>
+            </div>
           </div>
-        </div>
+        } @else {
+          <div class="empty-state">
+            <p>No voting history found.</p>
+          </div>
+        }
+
       </div>
     </div>
   </div>

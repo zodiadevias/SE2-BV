@@ -171,12 +171,17 @@
           </thead>
           <tbody *ngIf="ownedElections?.length > 0; else noData">
             <tr *ngFor="let e of ownedElections; let i = index">
-              <td>{{ e[1] }}</td>
-              <td>{{ e[0] }}</td>
-              <td>{{ e[3] | date:'dd/MM/yyyy, h:mm a' }}</td>
-              <td>{{ e[4] | date:'dd/MM/yyyy, h:mm a'}}</td>
-              <td><span class="badge success" *ngIf="e[2] === true">Active</span><span class="badge danger" *ngIf="e[2] === false">Closed</span></td>
-              <td style="text-align:right;"><button class="button" type="button" (click)="openElection(e[0],e[1])">Open</button></td>
+              <td data-label="Name">{{ e[1] }}</td>
+              <td data-label="Election ID">{{ e[0] }}</td>
+              <td data-label="Start Date">{{ e[3] | date:'dd/MM/yyyy, h:mm a' }}</td>
+              <td data-label="End Date">{{ e[4] | date:'dd/MM/yyyy, h:mm a'}}</td>
+              <td data-label="Status">
+                <span class="badge success" *ngIf="e[2] === true">Active</span>
+                <span class="badge danger" *ngIf="e[2] === false">Closed</span>
+              </td>
+              <td data-label="" style="text-align:right;">
+                <button class="button" type="button" (click)="openElection(e[0],e[1])">Open</button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -261,8 +266,8 @@
           
             <tbody>
               <tr *ngFor="let candidate of candidates; let i = index" class="updateCandidates" (click)="candidateSelected(i+1)">
-                <td>{{ candidate.name }}</td>
-                <td>{{ candidate.partylist }}</td>
+                <td data-label="Name">{{ candidate.name }}</td>
+                <td data-label="Partylist">{{ candidate.partylist }}</td>
               </tr>
             </tbody>
           

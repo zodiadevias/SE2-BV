@@ -187,30 +187,78 @@ async submitVotes(): Promise<void> {
 
 errorMessage = '';
 
-  async toggleVote() {
+async toggleVote() {
     this.errorMessage = '';
-    this.election = await this.backendService.getElectionDetails(this.electionId);
-    console.log(typeof(this.email) , typeof(this.election[5]));
-    console.log("Election details:", this.election);
-    if (this.election[0] == '' || this.election[0] == null) {
-      this.errorMessage = "⚠️ Election not found.";
-      return;
-    }else if (this.election[1] == false) {
-      this.errorMessage = "⚠️ Election is closed.";
-      return;
-    }else if (this.election[4] < new Date()) {
-      this.errorMessage = "⚠️ Election has ended.";
-      return;
-    }
-    else if (this.email.includes(this.election[5]) == false) {
-      this.errorMessage = "⚠️ You are not qualified to vote.";
-      return;
-    }
-    await this.fetchCandidates();
-    if(this.election){
-      this.voting = 1;
-      this.router.navigate(['user/vote/' + this.electionId]);
-      this.errorMessage = '';
+
+    try {
+      // 1. Fetch details
+      this.election = await this.backendService.getElectionDetails(this.electionId);
+      console.log("Raw Election Data:", this.election);
+
+      // 2. Validation: Check if election exists
+      if (!this.election || !this.election[0]) {
+        this.errorMessage = "⚠️ Election not found.";
+        return;
+      }
+
+      // 3. Validation: Check if manually closed
+      if (String(this.election[1]) === "false") {
+        this.errorMessage = "⚠️ Election is closed.";
+        return;
+      }
+
+      // --- DATE FIX START ---
+      const now = new Date().getTime(); // Current time in Milliseconds
+
+      // Parse the string "2025-12-03T11:04" into milliseconds
+      const startTime = new Date(this.election[3]).getTime();
+      const endTime = new Date(this.election[4]).getTime();
+
+      console.log("Parsed Dates:", {
+          serverString: this.election[3],
+          parsedStart: new Date(startTime),
+          parsedEnd: new Date(endTime),
+          now: new Date(now)
+      });
+
+      // Check if the date string was invalid (e.g. empty or malformed)
+      if (isNaN(startTime) || isNaN(endTime)) {
+          this.errorMessage = "⚠️ Election data contains invalid dates.";
+          console.error("Date parsing failed. Check if format matches 'YYYY-MM-DDTHH:mm'");
+          return;
+      }
+
+      if (startTime > now) {
+        this.errorMessage = "⚠️ Election has not started yet.";
+        return;
+      }
+
+      if (endTime < now) {
+        this.errorMessage = "⚠️ Election has ended.";
+        return;
+      }
+      // --- DATE FIX END ---
+
+      // 4. Validation: Check Domain Qualification
+      const userEmail = this.email ? this.email.toLowerCase() : '';
+      const allowedDomain = this.election[5] ? String(this.election[5]).toLowerCase() : '';
+
+      if (allowedDomain && allowedDomain !== 'public' && !userEmail.includes(allowedDomain)) {
+        this.errorMessage = "⚠️ You are not qualified to vote.";
+        return;
+      }
+
+      // 5. Success: Navigate
+      await this.fetchCandidates();
+      if (this.election) {
+        this.voting = 1;
+        this.router.navigate(['user/vote/' + this.electionId]);
+        this.errorMessage = '';
+      }
+
+    } catch (error) {
+      console.error("Error in toggleVote:", error);
+      
     }
   }
 

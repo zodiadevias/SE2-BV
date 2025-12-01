@@ -114,3 +114,80 @@
     font-size: 0.7rem;
   }
 }
+
+/* --- Mobile Responsive Table Styles --- */
+@media (max-width: 768px) {
+  /* 1. Reset the table components to block layout */
+  .table, .table thead, .table tbody, .table th, .table td, .table tr {
+    display: block;
+    width: 100%;
+  }
+
+  /* 2. Hide the original table headers */
+  .table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  /* 3. Style each row as a Card */
+  .table tbody tr {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  /* 4. Style the cells to look like key-value pairs */
+  .table td {
+    position: relative;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    font-size: 0.9rem;
+    min-height: 40px; /* Ensure height for alignment */
+  }
+
+  /* Remove border from the last item in the card */
+  .table td:last-child {
+    border-bottom: 0;
+  }
+
+  /* 5. Inject the Label using data-label attribute */
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #888; /* Muted label color */
+    margin-right: 1rem;
+    text-align: left;
+    white-space: nowrap; /* Keep label on one line */
+  }
+
+  /* 6. Special handling for the Transaction Hash */
+  .table td.tx-hash {
+    display: flex;
+    flex-direction: column; /* Stack label and hash on mobile */
+    align-items: flex-start; /* Align left */
+    text-align: left;
+    gap: 0.25rem;
+  }
+  
+  /* Fix empty/colspan rows (like 'No activities found') */
+  .table td[colspan] {
+    justify-content: center;
+    text-align: center;
+    color: #aaa;
+  }
+  .table td[colspan]::before {
+    display: none; /* Hide label for full-width messages */
+  }
+}

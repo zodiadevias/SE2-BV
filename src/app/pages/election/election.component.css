@@ -347,15 +347,83 @@
     padding: 0.4rem 0.8rem;
   }
   
-  .table {
+  /* .table {
     font-size: 0.75rem;
   }
   
   .table th, .table td {
     padding: 0.3rem 0.1rem;
-  }
+    font-size: 0.5rem;
+  } */
   
   .candidate-details img {
     max-width: 60px;
   }
+
+  /* .badge.danger{
+    font-size: 0.6rem;
+  } */
 }
+
+  /* --- Mobile Responsive Table (Card View) --- */
+  @media (max-width: 768px) {
+    /* Force table elements to act like block elements */
+    .table, .table thead, .table tbody, .table th, .table td, .table tr {
+      display: block;
+    }
+
+    /* Hide the table headers (we will add labels via CSS) */
+    .table thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+    /* Style the rows to look like cards */
+    .table tr {
+      border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      margin-bottom: 1rem; /* Space between "cards" */
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Style the cells */
+    .table td {
+      /* Behave like a "row" */
+      border: none;
+      position: relative;
+      padding-left: 0;
+      padding-right: 0;
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between; /* Label left, Value right */
+      align-items: center;
+      text-align: right;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Separator inside card */
+    }
+
+    .table td:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+      padding-top: 1rem; /* Add space for buttons at bottom */
+      justify-content: flex-end; /* Align buttons to right */
+    }
+
+    /* Add the labels using the data-label attribute */
+    .table td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #aaa; /* Muted color for labels */
+      text-align: left;
+      margin-right: 1rem;
+      flex-shrink: 0; /* Prevent label from squashing */
+    }
+    
+    /* Specific tweak for the badge */
+    .table .badge {
+      font-size: 0.75rem;
+    }
+  }

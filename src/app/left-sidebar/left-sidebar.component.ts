@@ -63,7 +63,7 @@ export class LeftSidebarComponent {
   }
   async logout() {
     try{
-      this.router.navigate(['/']);
+      
       await this.authService.logout();
       
       console.log('Logged out!');

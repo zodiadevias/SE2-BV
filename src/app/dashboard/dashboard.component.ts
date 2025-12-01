@@ -40,6 +40,7 @@ export class DashboardComponent {
     this.authService.role$.subscribe(role => {
       if (role) {
         this.role = role;
+        
       }
     });
   }
