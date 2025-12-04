@@ -22,7 +22,20 @@
               <td data-label="Candidate">{{ candidate.name }}</td>
               <td data-label="Position">{{ candidate.position }}</td>
               <td data-label="Party">{{ candidate.partylist }}</td>
-              <td data-label="Votes">{{ candidate.votes }}</td>
+              <td data-label="Votes">
+                <div class="vote-stats">
+                  <span class="percent-text">{{ candidate.percentage }}%</span>
+                  <span class="count-text">{{ candidate.votes }} votes</span>
+                </div>
+
+                <div class="progress-track">
+                  <div 
+                    class="progress-fill" 
+                    [style.width.%]="candidate.percentage"
+                    [title]="candidate.percentage + '%'">
+                  </div>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>

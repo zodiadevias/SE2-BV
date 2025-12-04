@@ -55,8 +55,10 @@ export class ResultComponent {
     });
   }
 
-  async toggleResult() {
-    if (this.isSubmitting) return; // ⛔ Prevent double click
+// Inside ResultComponent class...
+
+async toggleResult() {
+    if (this.isSubmitting) return; 
     this.isSubmitting = true;
 
     try {
@@ -70,14 +72,36 @@ export class ResultComponent {
         const partylists = res[2];
         const votes = res[3].map((v: string) => Number(v));
 
-        this.election.results = names.map((name: string, i: number) => ({
+        // 1. Create a temporary array of objects
+        const tempResults = names.map((name: string, i: number) => ({
           name,
           position: positions[i],
           partylist: partylists[i],
           votes: votes[i],
         }));
 
-        // Determine winners
+        // 2. Calculate Total Votes per Position
+        const votesPerPosition: Record<string, number> = {};
+        tempResults.forEach((cand: any) => {
+          if (!votesPerPosition[cand.position]) {
+            votesPerPosition[cand.position] = 0;
+          }
+          votesPerPosition[cand.position] += cand.votes;
+        });
+
+        // 3. Assign Percentage to each candidate
+        this.election.results = tempResults.map((cand: any) => {
+          const total = votesPerPosition[cand.position];
+          // Calculate percent, handle division by zero, keep 2 decimal places
+          const percentage = total > 0 ? ((cand.votes / total) * 100).toFixed(2) : '0.00';
+          
+          return { 
+            ...cand, 
+            percentage // Add this new property
+          };
+        });
+
+        // Determine winners logic (unchanged)
         const winnersMap: Record<string, any> = {};
         for (const cand of this.election.results) {
           if (!winnersMap[cand.position] || cand.votes > winnersMap[cand.position].votes) {
@@ -91,7 +115,7 @@ export class ResultComponent {
     } catch (err) {
       console.error('Error loading results:', err);
     } finally {
-      this.isSubmitting = false; // ✅ Allow re-click
+      this.isSubmitting = false;
     }
   }
 

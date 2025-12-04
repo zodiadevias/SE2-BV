@@ -17,7 +17,8 @@ export class BackendService {
     '97b0d897b88886b0f4b0574e308e69a4289b8d392394aa4d02ce225203a08730';
 
   constructor() {
-    this.web3 = new Web3('https://ethereum-sepolia-rpc.publicnode.com');
+    // this.web3 = new Web3('https://ethereum-sepolia-rpc.publicnode.com');
+    this.web3 = new Web3('https://blockchain.googleapis.com/v1/projects/blockvote-912af/locations/asia-east1/endpoints/ethereum-sepolia/rpc?key=AIzaSyBlLbBrAiwWs6HBXXS86gOayYzwa0bP90c');
     this.contract = new this.web3.eth.Contract(
       contractABI as any,
       this.contractAddress
