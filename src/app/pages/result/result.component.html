@@ -2,7 +2,7 @@
 <div *ngIf="toggle">
   <button class="button muted" style="margin-bottom:1rem;" (click)="back()">Back</button>
 
-  <div class="container card">
+  <div class="container card" *ngIf="isOpen">
     <div class="card-header">
       <div class="card-title">Live Election Results</div>
     </div>

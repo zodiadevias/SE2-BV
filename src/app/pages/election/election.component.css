@@ -118,7 +118,7 @@
 
 .image-upload-area.has-image {
   border-color: var(--primary);
-  background: linear-gradient(180deg, #0d1914 0%, #122219 100%);
+  /* background: linear-gradient(180deg, #0d1914 0%, #122219 100%); */
 }
 
 .image-upload-input {
