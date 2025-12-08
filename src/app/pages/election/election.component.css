@@ -1,6 +1,6 @@
 .party-card {
   padding: 0;
-  background: var(--card-bg, #0b1410)
+  /* background: var(--card-bg, #0b1410) */
 }
 
 .candidate-list {
@@ -101,7 +101,7 @@
   position: relative;
   border: 2px dashed rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  background: linear-gradient(180deg, #0b1712 0%, #0f1b15 100%);
+  /* background: linear-gradient(180deg, #0b1712 0%, #0f1b15 100%); */
   transition: all 0.3s ease;
   overflow: hidden;
   min-height: 120px;
@@ -112,7 +112,7 @@
 
 .image-upload-area:hover {
   border-color: var(--primary);
-  background: linear-gradient(180deg, #0d1914 0%, #122219 100%);
+  /* background: linear-gradient(180deg, #0d1914 0%, #122219 100%); */
   box-shadow: 0 0 0 4px var(--ring);
 }
 

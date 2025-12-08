@@ -1,13 +1,15 @@
+/* =========================================
+   BASE COLORS & VARIABLES
+   ========================================= */
+
 :root {
-  /* Professional "Emerald & Obsidian" Palette 
-    Shifted from standard green to a slightly cooler, sharper emerald.
-  */
-  --green-50:  #ecfdf5;
+  /* Professional "Emerald & Obsidian" Palette */
+  --green-50:  #ecfdf5;
   --green-100: #d1fae5;
   --green-200: #a7f3d0;
   --green-300: #6ee7b7;
   --green-400: #34d399;
-  --green-500: #10b981; /* The new primary anchor */
+  --green-500: #10b981; 
   --green-600: #059669;
   --green-700: #047857;
   --green-800: #065f46;
@@ -15,14 +17,13 @@
   --green-950: #022c22;
 
   /* Accents & neutrals */
-  --accent:  #38bdf8; /* Sky blue pairs better with Emerald than standard blue */
+  --accent:  #38bdf8;
   --warning: #fbbf24;
-  --danger:  #f43f5e;
+  --danger:  #f43f5e;
+  --red-400: #f87171; 
 
-  /* The "Gray" scale is actually tinted with a tiny bit of blue-green 
-    to blend with the background, preventing it from looking dead.
-  */
-  --gray-50:  #f8fafc;
+  /* Gray Scale (Tinted) */
+  --gray-50:  #f8fafc;
   --gray-100: #f1f5f9;
   --gray-200: #e2e8f0;
   --gray-300: #cbd5e1;
@@ -33,29 +34,60 @@
   --gray-800: #1e293b;
   --gray-900: #0f172a;
 
-  /* Semantic Colors */
-  --bg: #050505; /* Much darker, cleaner black */
-  
-  /* Panels have a subtle tint, but are mostly dark neutral */
+  /* Semantic Colors (DEFAULT/DARK MODE) */
+  --bg: #050505; 
   --panel: #0a0a0a; 
-  --panel-elev: #121212;
+  --panel-elev: #121212; 
   
-  --text: #f1f5f9; /* High legibility white-gray */
+  --text: #f1f5f9; 
   --muted: #8899a6;
   
+  /* Primary for Dark Mode is still Green Accent */
   --primary: var(--green-500);
   --primary-strong: var(--green-600);
   --primary-weak: var(--green-400);
   
-  /* Refined Ring and Shadow */
   --ring: rgba(16, 185, 129, 0.3); 
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
   
-  /* Borders: The mark of a pro UI is subtle borders */
   --border-color: rgba(255,255,255,0.08);
-  
-  --radius: 8px; /* Slightly tighter radius looks more "Enterprise" */
+  --radius: 8px;
+
+  --body-gradient-start: #111f18;
 }
+
+/* =========================================
+   LIGHT MODE OVERRIDES
+   *** UPDATED FOR PROFESSIONAL GRAY PRIMARY ***
+   ========================================= */
+.light-theme {
+  /* Semantic Colors (LIGHT MODE) */
+  --bg: var(--gray-50); 
+  --panel: #ffffff; 
+  --panel-elev: var(--gray-100); 
+  
+  --text: var(--gray-900);
+  --muted: var(--gray-600);
+  
+  /* PROFESSIONAL CHANGE: 
+    Primary is now a strong Gray for neutral, corporate look. 
+    The green is only reserved for tertiary elements.
+  */
+  --primary: var(--gray-700); 
+  --primary-strong: var(--gray-800);
+  --primary-weak: var(--green-50); /* Use lightest green for subtle backgrounds */
+  
+  --ring: rgba(51, 65, 85, 0.3); /* Ring color now based on primary gray */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  
+  --border-color: var(--gray-200);
+
+  --body-gradient-start: var(--gray-200);
+}
+
+/* =========================================
+   GLOBAL & BASE STYLES
+   ========================================= */
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -64,16 +96,16 @@ body {
   margin: 0;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--text);
-  /* A very subtle gradient, mostly solid dark */
-  background: radial-gradient(circle at top center, #111f18 0%, var(--bg) 60%);
+  background: radial-gradient(circle at top center, var(--body-gradient-start) 0%, var(--bg) 60%);
   background-attachment: fixed;
+  transition: background-color 0.3s, color 0.3s; 
 }
 
 /* Typography */
 h1, h2, h3, h4 { 
   color: var(--text); 
   margin: 0 0 .5rem; 
-  letter-spacing: -0.02em; /* Tighter tracking for headings is modern */
+  letter-spacing: -0.02em; 
 }
 p { 
   color: var(--muted); 
@@ -87,12 +119,13 @@ p {
 .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
-/* Panels - Now clearer and cleaner */
+/* Panels - Uses semantic --panel and --border-color */
 .card {
   background: var(--panel);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Subtle depth */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
 .card-header { 
@@ -109,7 +142,7 @@ p {
    RESPONSIVE BUTTONS
    ========================================= */
 
-/* 1. Desktop / Default (Matte Style) */
+/* 1. Primary Button (Default/Dark - Gray-Based) */
 .button {
   appearance: none;
   display: inline-flex;
@@ -117,83 +150,139 @@ p {
   justify-content: center;
   gap: 0.5rem;
   
-  /* Matte Colors */
-  background-color: var(--green-700); 
-  color: #ffffff;
-  border: 1px solid var(--green-800);
+  background-color: var(--gray-800); 
+  color: var(--text); 
+  border: 1px solid var(--gray-700);
   border-radius: 6px;
   
-  /* Desktop Size */
   padding: .6rem 1.1rem;
   font-size: 0.9rem;
   font-weight: 500;
   
   cursor: pointer;
-  transition: background-color .2s ease, transform .1s ease;
+  transition: background-color .2s ease, transform .1s ease, border-color .2s ease, box-shadow .2s ease;
   box-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
 .button:hover {
-  background-color: var(--green-600);
-  border-color: var(--green-700);
+  background-color: var(--gray-700);
+  border-color: var(--gray-600);
 }
 
-/* 2. Mobile Adjustments (Max width 768px) 
-   Reduces height and bulkiness on phones
-*/
+.button:focus {
+  border-color: var(--primary); 
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+/* -----------------------------------------
+   LIGHT MODE PRIMARY BUTTON OVERRIDES (Gray CTA)
+   ----------------------------------------- */
+.light-theme .button {
+  /* Now Gray/Black Primary for a neutral, corporate look */
+  background-color: var(--primary); /* gray-700 */
+  color: #ffffff;
+  border: 1px solid var(--primary-strong);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.light-theme .button:hover {
+  background-color: var(--primary-strong); /* gray-800 */
+  border-color: var(--primary-strong);
+}
+.light-theme .button:focus {
+  border-color: var(--primary); 
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+
+/* 2. Mobile Adjustments (Max width 768px) */
 @media (max-width: 768px) {
   .button {
-    /* Tighter padding makes the button shorter */
     padding: 0.45rem 0.85rem;
-    
-    /* Slightly smaller text matches mobile scale */
     font-size: 0.85rem;
-    
-    /* Optional: Ensure they don't stretch weirdly */
     min-height: 36px;
   }
 }
 
-/* 3. Ghost Button (Secondary)
-   Keeps the same dimensions as the main button
-*/
+/* 3. Ghost Button (Outline Only) */
 .button.ghost {
   background-color: transparent;
-  color: var(--gray-400);
+  color: var(--muted);
   border: 1px solid var(--gray-800);
   box-shadow: none;
 }
 
-/* Utility: Full Width Button 
-   Add class="button w-full" if you WANT a big button on mobile 
-   (e.g., for the main 'Submit' action)
-*/
+.button.ghost:hover {
+  background-color: rgba(255, 255, 255, 0.05); 
+  color: var(--text);
+  border-color: var(--gray-700);
+}
+
+/* LIGHT MODE GHOST BUTTON OVERRIDES */
+.light-theme .button.ghost {
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+
+.light-theme .button.ghost:hover {
+  background-color: var(--gray-100); 
+  color: var(--gray-900);
+  border-color: var(--gray-300);
+}
+
+/* 4. Secondary Button (Gray Button - Less importance than Primary) */
+.button.secondary {
+  /* Dark Mode Secondary - Slightly Lighter Gray than Primary */
+  background-color: var(--gray-700); 
+  color: var(--gray-100);
+  border: 1px solid var(--gray-600);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.button.secondary:hover {
+  background-color: var(--gray-600);
+  border-color: var(--gray-700);
+}
+
+/* LIGHT MODE SECONDARY BUTTON OVERRIDES */
+.light-theme .button.secondary {
+  /* Remains gray, but lighter than the new primary */
+  background-color: var(--gray-200); 
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.light-theme .button.secondary:hover {
+  background-color: var(--gray-300);
+  border-color: var(--gray-400);
+}
+
+/* Utility: Full Width Button */
 .w-full {
   width: 100%;
   display: flex;
 }
 
+/* =========================================
+   FORM ELEMENTS
+   ========================================= */
 
-
-
-
-
-
-/* Inputs */
+/* Inputs - Uses semantic variables */
 .input, select, textarea {
   width: 100%;
   padding: .6rem .8rem;
-  background: #0f0f0f; /* Darker input bg */
+  background: var(--panel-elev);
   color: var(--text);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   outline: none;
   font-size: 0.9rem;
-  transition: border-color .15s ease, box-shadow .15s ease;
+  transition: border-color .15s ease, box-shadow .15s ease, background 0.3s;
 }
 .input:focus, select:focus, textarea:focus { 
   border-color: var(--primary); 
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15); /* Very subtle ring */
+  box-shadow: 0 0 0 2px var(--ring); 
 }
 
 /* Badges */
@@ -208,6 +297,7 @@ p {
   letter-spacing: 0.02em;
 }
 .badge.success { 
+  /* Green badge remains green */
   background: rgba(16, 185, 129, 0.15); 
   color: var(--green-400); 
   border: 1px solid rgba(16, 185, 129, 0.2); 
@@ -219,17 +309,27 @@ p {
   border: 1px solid rgba(239, 68, 68, 0.2); 
 }
 
-/* Header & Sidebar */
+/* =========================================
+   APPLICATION SHELL & NAVIGATION
+   ========================================= */
+
 .app-shell { display: grid; grid-template-rows: 60px 1fr; height: 100dvh; }
 
+/* Topbar - Uses semantic border and panel colors */
 .topbar {
   position: sticky; top: 0; z-index: 50; height: 60px;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 1.5rem; 
   border-bottom: 1px solid var(--border-color);
-  background: rgba(5, 5, 5, 0.8); /* Glass effect */
+  background: rgba(5, 5, 5, 0.8); /* Glass effect (Dark) */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+/* LIGHT MODE TOPBAR OVERRIDES */
+.light-theme .topbar {
+  background: rgba(255, 255, 255, 0.85); /* White glass effect */
 }
 
 .brand { display: flex; align-items: center; gap: .75rem; font-weight: 600; font-size: 1rem; color: var(--text); }
@@ -245,6 +345,7 @@ p {
   border-right: 1px solid var(--border-color);
   background: var(--panel);
   padding: 1rem; overflow: auto;
+  transition: background 0.3s, border-right-color 0.3s;
 }
 .nav { display: flex; flex-direction: column; gap: .25rem; }
 .nav a {
@@ -255,9 +356,22 @@ p {
 }
 .nav a:hover { background: rgba(255,255,255,0.03); color: var(--text); }
 .nav a.active { 
+  /* Dark Mode: Active is Green */
   background: rgba(16, 185, 129, 0.1); 
   color: var(--green-400); 
   font-weight: 500;
+}
+
+/* LIGHT MODE NAV OVERRIDES */
+.light-theme .nav a:hover { 
+  background: var(--gray-100); 
+  color: var(--text); 
+}
+.light-theme .nav a.active { 
+  /* Light Mode: Active uses the subdued green */
+  background: var(--primary-weak); /* green-50 */
+  color: var(--gray-900); /* Dark text on light background */
+  font-weight: 600;
 }
 
 .content { padding: 1.5rem; overflow: auto; }
@@ -281,36 +395,50 @@ p {
   font-size: 0.9rem;
 }
 
+.table tr:last-child td { border-bottom: none; }
+
 /* =========================================
    MODAL / DIALOG STYLES
    ========================================= */
 
-/* 1. The "Outer" Background (Backdrop) 
-   Forces the background behind the modal to be solid pure black.
-*/
+/* 1. The "Outer" Background (Backdrop) */
 .custom-dialog-backdrop,
 dialog::backdrop {
-  background-color: #000000 !important; /* Pure Hex Black */
-  background: #000000 !important;       /* Fallback */
-  opacity: 1 !important;                /* Forces 100% opacity (no see-through) */
-  backdrop-filter: none !important;     /* Removes blur since it is solid */
+  background-color: #000000 !important; 
+  background: #000000 !important; 
+  opacity: 1 !important; 
+  backdrop-filter: none !important;
+  transition: background-color 0.3s;
 }
 
-/* 2. The Modal Window (The Card itself)
-   Since the background is now Pure Black, the Modal Window needs 
-   a specific border to stand out against the void.
-*/
-.mat-mdc-dialog-surface, /* Common Angular Material class */
-.modal-content,          /* Common Bootstrap/Custom class */
+/* LIGHT MODE BACKDROP OVERRIDES */
+.light-theme .custom-dialog-backdrop,
+.light-theme dialog::backdrop {
+  background-color: rgb(121, 119, 119) !important; /* Semi-transparent dark overlay */
+}
+
+/* 2. The Modal Window (The Card itself) */
+.mat-mdc-dialog-surface,
+.modal-content,
 dialog {
   background: var(--panel) !important;
-  border: 1px solid var(--green-900) !important; /* Green border makes it pop against black */
-  box-shadow: 0 0 50px rgba(16, 185, 129, 0.15) !important; /* Emerald glow */
+  border: 1px solid var(--green-900) !important; 
+  box-shadow: 0 0 50px rgba(16, 185, 129, 0.15) !important;
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
-.table tr:last-child td { border-bottom: none; }
+/* LIGHT MODE MODAL OVERRIDES */
+.light-theme .mat-mdc-dialog-surface,
+.light-theme .modal-content,
+.light-theme dialog {
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+}
 
-/* Mobile Responsiveness (Preserved) */
+/* =========================================
+   RESPONSIVENESS
+   ========================================= */
+
 @media (max-width: 1024px) { 
   .shell-body { grid-template-columns: 72px 1fr; } 
   .sidebar .label { display:none; } 
@@ -321,6 +449,7 @@ dialog {
   .sidebar { 
     position: fixed; inset: 60px 0 auto 0; height: calc(100dvh - 60px); 
     transform: translateX(-100%); z-index: 40;
+    transition: transform 0.3s ease;
   } 
   .sidebar.open { transform: none; }
 }

@@ -1,11 +1,12 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LeftSidebarComponent } from '../left-sidebar/left-sidebar.component';
+import { ThemeToggleComponent } from '../shared/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-pages',
   standalone: true,
-  imports: [RouterOutlet, LeftSidebarComponent],
+  imports: [RouterOutlet, LeftSidebarComponent, ThemeToggleComponent],
   templateUrl: './pages.component.html',
   styleUrl: './pages.component.css'
 })
