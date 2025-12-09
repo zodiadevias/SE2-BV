@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ThemeService } from '../../../core/theme.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-theme-toggle',
   templateUrl: './theme-toggle.component.html',
-  styleUrls: ['./theme-toggle.component.css']
+  styleUrls: ['./theme-toggle.component.css'],
+  imports: [CommonModule]
 })
 export class ThemeToggleComponent implements OnInit {
   isLightMode: boolean = false;
@@ -18,6 +20,7 @@ export class ThemeToggleComponent implements OnInit {
 
   onToggle(): void {
     this.themeService.toggleTheme();
-    this.isLightMode = !this.isLightMode;
+    // Re-fetch the truth from the service to ensure sync
+    this.isLightMode = this.themeService.getCurrentTheme() === 'light';
   }
 }
