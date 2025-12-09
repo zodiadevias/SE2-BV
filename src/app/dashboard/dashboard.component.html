@@ -52,11 +52,12 @@
             <div class="card election-card" *ngFor="let item of (voteHistory$ | slice:0:voteHistory$.length).reverse()">
               <ng-container *ngIf="item.email === email">
                 <div class="card-header">
-                  <div class="card-title">{{ item.electionId }}: {{ item.electionName }}</div>
+                  <div class="card-title">ID: {{ item.electionId }} - {{ item.electionName }}</div>
                   <button class="button ghost" type="button" (click)="openElection(item.electionId)">View</button>
                 </div>
                 <div class="card-body">
                   <p>Voted: {{ item.date | date:'dd MMM yyyy, h:mm a' }}</p>
+                  <p class="tx-hash">Transaction Hash: {{ item.txHash }}</p>
                 </div>
               </ng-container>
             </div>
