@@ -7,29 +7,49 @@
       <div class="card-title">Live Election Results</div>
     </div>
     <div class="card-body" style="overflow:auto;">
-      <table class="table" *ngIf="election?.results?.length ?? 0 > 0; else noResults">
+      <!-- Progress Bars by Position -->
+      <div *ngIf="resultsByPosition.length > 0" class="results-container">
+        <div *ngFor="let positionGroup of resultsByPosition" class="position-group">
+          <div class="position-header">
+            <h3 class="position-title">{{ positionGroup.position }}</h3>
+            <span class="position-badge">{{ positionGroup.totalVotes }} total votes</span>
+          </div>
+          
+          <div class="candidates-list">
+            <div *ngFor="let candidate of positionGroup.candidates; let i = index" 
+                 class="candidate-card"
+                 [class.winner]="i === 0 && candidate.votes > 0">
+              <div class="candidate-header">
+                <div class="candidate-info">
+                  <h4 class="candidate-name">{{ candidate.name }}</h4>
+                  <p class="candidate-position">{{ candidate.position }}</p>
+                  <span class="candidate-party">{{ candidate.partylist }}</span>
+                </div>
+                <div class="candidate-stats">
+                  <div class="vote-count">{{ candidate.votes }}</div>
+                  <div class="vote-label">votes</div>
+                </div>
+              </div>
+              
+              <div class="progress-container">
+                <div class="progress-bar-wrapper">
+                  <div class="progress-bar" 
+                       [style.width.%]="candidate.percentage"
+                       [class.winner-bar]="i === 0 && candidate.votes > 0">
+                    <div class="progress-fill"></div>
+                  </div>
+                </div>
+                <div class="progress-percentage">{{ candidate.percentage.toFixed(1) }}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <thead>
-          <tr>
-            <th>Candidate</th>
-            <th>Position</th>
-            <th>Party</th>
-            <th>Votes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let candidate of election.results">
-            <td>{{ candidate.name }}</td>
-            <td>{{ candidate.position }}</td>
-            <td>{{ candidate.partylist }}</td>
-            <td>{{ candidate.votes }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <ng-template #noResults>
-        <p>No results found for this election.</p>
-      </ng-template>
+      <!-- No results message -->
+      <div *ngIf="(election?.results?.length ?? 0) === 0" class="empty-state">
+        <p>No results found for this election. The election may not have any candidates yet, or no votes have been cast.</p>
+      </div>
     </div>
   </div>
 
@@ -39,27 +59,44 @@
       <div class="card-title">Winners</div>
     </div>
     <div class="card-body" style="overflow:auto;">
-      <table class="table" *ngIf="election?.winners?.length ?? 0 > 0 ; else noResults">
+      <!-- Winners Progress Bars -->
+      <div *ngIf="(election?.winners?.length ?? 0) > 0" class="winners-container">
+        <div *ngFor="let winner of election.winners" class="winner-card">
+          <div class="winner-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20,6 9,17 4,12"></polyline>
+            </svg>
+            Winner
+          </div>
+          
+          <div class="candidate-header">
+            <div class="candidate-info">
+              <h4 class="candidate-name">{{ winner.name }}</h4>
+              <p class="candidate-position">{{ winner.position }}</p>
+              <span class="candidate-party">{{ winner.partylist }}</span>
+            </div>
+            <div class="candidate-stats">
+              <div class="vote-count">{{ winner.votes }}</div>
+              <div class="vote-label">votes</div>
+            </div>
+          </div>
+          
+          <div class="progress-container">
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar winner-bar" 
+                   [style.width.%]="getWinnerPercentage(winner)">
+                <div class="progress-fill"></div>
+              </div>
+            </div>
+            <div class="progress-percentage">{{ getWinnerPercentage(winner).toFixed(1) }}%</div>
+          </div>
+        </div>
+      </div>
 
-        <thead>
-          <tr>
-            <th>Candidate</th>
-            <th>Position</th>
-            <th>Party</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let winner of election.winners">
-            <td>{{ winner.name }}</td>
-            <td>{{ winner.position }}</td>
-            <td>{{ winner.partylist }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <ng-template #noWinners>
+      <!-- No winners message -->
+      <div *ngIf="(election?.winners?.length ?? 0) === 0" class="empty-state">
         <p>No winners found for this election.</p>
-      </ng-template>
+      </div>
     </div>
   </div>
 </div>
@@ -82,16 +119,17 @@
           <div class="form-group">
             <label for="electionId">Election ID</label>
             <input
-              type="text"
+              type="number"
               id="electionId"
               name="electionId"
               [(ngModel)]="electionId"
               class="input form-control"
+              placeholder="Enter election ID"
               required
             />
           </div>
           <div class="form-group">
-            <button type="submit" class="button">Enter</button>
+            <button type="submit" class="button success">View Results</button>
           </div>
         </form>
       </div>

@@ -6,87 +6,129 @@
       <button 
         type="submit" 
         [disabled]="submitting || electionForm.invalid" 
-        class="btn btn-primary button">
-        {{ submitting ? 'Submitting...' : 'Create' }}
+        class="button success">
+        {{ submitting ? 'Submitting...' : 'Create Election' }}
       </button>
-
     </div>
-    <div class="card-body grid grid-2">
-      <div>
-        <label>Name</label>
-        <input class="input" placeholder="e.g., Board Election 2025" formControlName="name" />
-      </div>
-      <div>
-        <label>Domain Filter</label>
-        <input class="input" placeholder="e.g., @gmail.com" formControlName="domainFilter" />
-      </div>
-      <div>
-        <label>Start</label>
-        <input type="datetime-local" class="input" formControlName="start" />
-      </div>
-      <div>
-        <label>End</label>
-        <input type="datetime-local" class="input" formControlName="end" />
+    <div class="card-body">
+      <div class="form-section">
+        <h3 class="section-title">Basic Information</h3>
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Election Name</label>
+            <input class="input" placeholder="e.g., Board Election 2025" formControlName="name" />
+          </div>
+          <div class="form-group">
+            <label>Domain Filter</label>
+            <input class="input" placeholder="e.g., @gmail.com" formControlName="domainFilter" />
+            <small class="form-hint">Only emails from this domain can vote</small>
+          </div>
+          <div class="form-group">
+            <label>Start Date & Time</label>
+            <input type="datetime-local" class="input" formControlName="start" />
+          </div>
+          <div class="form-group">
+            <label>End Date & Time</label>
+            <input type="datetime-local" class="input" formControlName="end" />
+          </div>
+        </div>
       </div>
 
 
       <!-- Position Presets Section -->
-      <div class="card" style="margin-top:1rem;">
-        <div class="card-header">
-          <div class="card-title">Position Presets</div>
-          <button class="button ghost" type="button" (click)="addPreset()">Add Preset</button>
-        </div>
-        <div class="card-body">
-          <div formArrayName="positionPresets" class="stack" style="gap: .5rem;">
-            <div *ngFor="let preset of positionPresets.controls; let k = index" [formGroupName]="k" class="preset-row">
-              <input class="input" placeholder="e.g., President" formControlName="name" />
-              <button class="button danger" type="button" (click)="removePreset(k)">Remove</button>
-            </div>
+      <div class="form-section">
+        <div class="section-header">
+          <div>
+            <h3 class="section-title">Position Presets</h3>
+            <p class="section-description">Define the positions available in this election. Order matters (top = highest rank).</p>
           </div>
-          <div class="info">Positions are hierarchical (top = highest rank)</div>
+          <button class="button ghost" type="button" (click)="addPreset()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Position
+          </button>
+        </div>
+        <div formArrayName="positionPresets" class="preset-list">
+          <div *ngFor="let preset of positionPresets.controls; let k = index" [formGroupName]="k" class="preset-row">
+            <div class="preset-number">{{ k + 1 }}</div>
+            <input class="input" placeholder="e.g., President" formControlName="name" />
+            <button class="button danger" type="button" (click)="removePreset(k)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div *ngIf="positionPresets.length === 0" class="empty-state">
+            <p>No positions added yet. Click "Add Position" to get started.</p>
+          </div>
         </div>
       </div>
 
 
 
-      <div style="grid-column: 1 / -1;">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:.5rem;">
-          <div class="card-title">Partylists</div>
-          <button class="button ghost" type="button" (click)="addParty()">Add Party</button>
+      <!-- Partylists Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <div>
+            <h3 class="section-title">Partylists & Candidates</h3>
+            <p class="section-description">Add parties and their candidates for each position.</p>
+          </div>
+          <button class="button ghost" type="button" (click)="addParty()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Party
+          </button>
         </div>
-        <div formArrayName="partylists" class="stack" style="gap: 1rem;">
+        <div formArrayName="partylists" class="partylist-container">
           <div *ngFor="let party of partylists.controls; let i = index" [formGroupName]="i" class="card party-card">
             <div class="card-header">
               <div class="card-title">Party {{ i + 1 }}</div>
-              <div style="display:flex; gap:.5rem;">
-                <button class="button danger" type="button" (click)="removeParty(i)">Remove</button>
-                <button class="button ghost" type="button" (click)="addCandidate(i)">Add Candidate</button>
+              <div class="party-actions">
+                <button class="button ghost" type="button" (click)="addCandidate(i)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Add Candidate
+                </button>
+                <button class="button danger" type="button" (click)="removeParty(i)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  Remove
+                </button>
               </div>
             </div>
             <div class="card-body">
-              <div class="grid grid-2">
-                <div>
-                  <label>Party Name</label>
-                  <input class="input" placeholder="e.g., Unity Party" formControlName="name" />
-                </div>
+              <div class="form-group">
+                <label>Party Name</label>
+                <input class="input" placeholder="e.g., Unity Party" formControlName="name" />
               </div>
 
               <div formArrayName="candidates" class="candidate-list">
                 <div *ngFor="let c of candidatesAt(i).controls; let j = index" [formGroupName]="j" class="candidate-row">
                   <div class="row-header">
                     <div class="row-title">Candidate {{ j + 1 }}</div>
-                    <button class="button danger" type="button" (click)="removeCandidate(i, j)">Remove</button>
+                    <button class="button danger" type="button" (click)="removeCandidate(i, j)">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      Remove
+                    </button>
                   </div>
-                  <div class="row-body grid grid-3">
-                    <div>
+                  <div class="row-body grid grid-2">
+                    <div class="form-group">
                       <label>Full Name</label>
                       <input class="input" placeholder="e.g., Alice Johnson" formControlName="fullName" />
                     </div>
-                    <!-- <div>
-                      <label>Position</label>
-                      <input class="input" placeholder="e.g., President" formControlName="position" />
-                    </div> -->
-                    <div>
+                    <div class="form-group">
                       <label>Position</label>
                       <select class="input" formControlName="position">
                         <option value="" disabled selected>Select position</option>
@@ -95,10 +137,8 @@
                         </option>
                       </select>
                     </div>
-
-
-                    <div>
-                      <label>Image</label>
+                    <div class="form-group">
+                      <label>Candidate Image</label>
                       <div class="image-upload-container">
                         <div class="image-upload-area" [class.has-image]="c.get('imageDataUrl')?.value">
                           <input 
@@ -130,12 +170,14 @@
                         </div>
                       </div>
                     </div>
-                    <div style="grid-column: 1 / -1;">
-                      <label>Platform</label>
-                      <textarea class="input" rows="2" placeholder="Campaign platform" formControlName="platform"></textarea>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                      <label>Campaign Platform</label>
+                      <textarea class="input" rows="3" placeholder="Describe the candidate's campaign platform and goals..." formControlName="platform"></textarea>
                     </div>
-                    
                   </div>
+                </div>
+                <div *ngIf="candidatesAt(i).length === 0" class="empty-state">
+                  <p>No candidates added yet. Click "Add Candidate" to get started.</p>
                 </div>
               </div>
             </div>
