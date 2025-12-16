@@ -68,6 +68,7 @@ export class LeftSidebarComponent {
       await this.authService.logout();
       
       console.log('Logged out!');
+      location.reload();
     }catch(err: any){
       console.log(err.message);
     }

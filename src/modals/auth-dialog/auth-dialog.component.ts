@@ -105,6 +105,7 @@ async submit() {
       await this.authService.login(email!, password!);
       this.dialogRef.close();
       this.router.navigate(['app/dashboard']);
+      location.reload();
       
     } catch (err: any) {
       this.errorMessage = err.message;

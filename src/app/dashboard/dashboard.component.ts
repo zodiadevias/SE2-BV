@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList } from '@angular/core'; 
 import { CommonModule, NgFor } from '@angular/common';
 import { FirebaseService } from '../../services/firebase.service';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service'; 
 import { Router } from '@angular/router';
 
 // --- NG2-CHARTS/CHART.JS IMPORTS ---
@@ -9,7 +9,6 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions, ChartType, ChartData } from 'chart.js'; 
 import { Chart, registerables } from 'chart.js';
 
-// Register all required Chart.js components globally
 Chart.register(...registerables); 
 // ------------------------------------
 
@@ -22,34 +21,30 @@ Chart.register(...registerables);
 })
 export class DashboardComponent implements OnInit {
 
+  @ViewChildren(BaseChartDirective) charts!: QueryList<BaseChartDirective>; 
+
   // Raw data arrays...
   history$: any[] = [];
   voteHistory$: any[] = [];
   filteredHistory$: any[] = [];
   filteredVoteHistory$: any[] = [];
 
-  // --- CHART PROPERTIES: FINAL, STRICT TYPING FOR TEMPLATE BINDING ---
-  
-  // 1. Voter Line Chart (Votes Over Time)
+  // --- CHART PROPERTIES ---
   public lineChartData: ChartData<'line'> = { datasets: [] }; 
   public lineChartOptions: ChartOptions<'line'> = { responsive: true, scales: { y: { beginAtZero: true } } };
-  public lineChartType: 'line' = 'line'; // Strict literal type
+  public lineChartType: 'line' = 'line'; 
   
-  // 2. Voter Bar Chart (Elections Participation)
   public voterBarChartData: ChartData<'bar'> = { datasets: [] }; 
   public voterBarChartOptions: ChartOptions<'bar'> = { responsive: true, scales: { y: { beginAtZero: true } } };
-  public voterBarChartType: 'bar' = 'bar'; // Strict literal type
+  public voterBarChartType: 'bar' = 'bar'; 
 
-  // 3a. Organizer Bar Chart (Activity Volume)
   public barChartData: ChartData<'bar'> = { datasets: [] }; 
   public barChartOptions: ChartOptions<'bar'> = { responsive: true, scales: { y: { beginAtZero: true } } };
-  public barChartType: 'bar' = 'bar'; // Strict literal type
+  public barChartType: 'bar' = 'bar'; 
 
-  // 3b. Organizer Line Chart (Activity Trend)
   public organizerLineChartData: ChartData<'line'> = { datasets: [] }; 
   public organizerLineChartOptions: ChartOptions<'line'> = { responsive: true, scales: { y: { beginAtZero: true } } };
-  public organizerLineChartType: 'line' = 'line'; // Strict literal type
-  // ----------------------------------------
+  public organizerLineChartType: 'line' = 'line'; 
   
   email: string | null = null;
   role: any;
@@ -61,41 +56,56 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Rely on data subscriptions to trigger filterData when data arrives
+
     this.authService.authState$.subscribe(user => {
       this.email = user ? user.email : null;
-      this.filterData(); 
+      this.filterData(); // Trigger data processing whenever email status changes
     });
 
     this.authService.role$.subscribe(role => {
       this.role = role;
+      this.filterData(); // Trigger data processing whenever role changes
     });
 
     this.firebaseService.getHistory().subscribe(data => {
       this.history$ = data;
-      this.filterData(); 
+      this.filterData(); // Trigger data processing when history data arrives
     });
 
     this.firebaseService.getVoteHistory().subscribe(data => {
       this.voteHistory$ = data;
-      this.filterData(); 
+      this.filterData(); // Trigger data processing when vote history data arrives
     });
   }
 
   filterData() {
-    if (!this.email) {
-      this.filteredHistory$ = [];
-      this.filteredVoteHistory$ = [];
+    
+    const needsVoterData = this.role === 'voter' && this.voteHistory$.length > 0;
+    const needsOrganizerData = this.role === 'organizer' && this.history$.length > 0;
+    const isReady = (needsVoterData || needsOrganizerData) && this.email !== null && this.role !== undefined;
+
+    if (!isReady) {
+      // Reset chart data if we are not ready to draw (e.g., waiting for data)
       this.lineChartData = { datasets: [] };
       this.voterBarChartData = { datasets: [] };
       this.barChartData = { datasets: [] };
       this.organizerLineChartData = { datasets: [] }; 
+      this.updateCharts();
       return;
     }
 
     this.filteredHistory$ = this.history$.filter(item => item.email === this.email);
     this.filteredVoteHistory$ = this.voteHistory$.filter(item => item.email === this.email);
     
-    this.prepareChartData();
+    // Proceed only if we have filtered data relevant to the user's role
+    if (
+        (this.role === 'voter' && this.filteredVoteHistory$.length > 0) ||
+        (this.role === 'organizer' && this.filteredHistory$.length > 0)
+    ) {
+        this.prepareChartData();
+        this.updateCharts();
+    }
   }
 
   prepareChartData() {
@@ -115,13 +125,6 @@ export class DashboardComponent implements OnInit {
 
         const dataPointsLine = sortedMonths.map(month => votesByMonth[month]);
 
-        this.lineChartData = {
-          labels: sortedMonths,
-          datasets: [
-            { data: dataPointsLine, label: 'Votes Cast', fill: true, tension: 0.5, borderColor: 'rgba(54, 162, 235, 1)' }
-          ]
-        };
-
         // --- 2. Voter Bar Chart (Elections Participation) ---
         const votesByElection: { [key: string]: number } = this.filteredVoteHistory$.reduce((acc: { [key: string]: number }, item) => {
             const electionName = item.electionName || 'Unknown Election';
@@ -131,6 +134,13 @@ export class DashboardComponent implements OnInit {
         
         const electionNames = Object.keys(votesByElection);
         const dataPointsBar = electionNames.map(key => votesByElection[key]);
+
+        this.lineChartData = {
+          labels: sortedMonths,
+          datasets: [
+            { data: dataPointsLine, label: 'Votes Cast', fill: true, tension: 0.5, borderColor: 'rgba(54, 162, 235, 1)' }
+          ]
+        };
 
         this.voterBarChartData = {
             labels: electionNames,
@@ -180,6 +190,20 @@ export class DashboardComponent implements OnInit {
       };
     }
   }
+
+  // --- CHART UPDATE METHOD ---
+  updateCharts() {
+    setTimeout(() => {
+      if (this.charts) {
+        this.charts.forEach(chart => {
+          if (chart.chart) {
+            chart.chart.update();
+          }
+        });
+      }
+    }, 50); 
+  }
+  // ---------------------------
 
   openElection(electionId: number) {
     this.router.navigate(['user/vote', electionId]);
