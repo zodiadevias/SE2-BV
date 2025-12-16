@@ -1,10 +1,37 @@
-<!-- When results are toggled ON -->
 <div *ngIf="toggle">
   <button class="button muted" style="margin-bottom:1rem;" (click)="back()">Back</button>
 
+  <div class="container card">
+    
+      <div class="card-header">
+        <div class="card-title">Election Details</div>
+      </div>
+      <div class="card-body">
+        <div class="muted">
+          Election ID: {{ electionId }}
+        </div>
+        <div class="muted">
+          Allowed Domains: {{ allowedDomains }}
+        </div>
+        <div class="muted">
+          Start Date: {{ startDate }}
+        </div>
+        <div class="muted">
+          End Date: {{ endDate }}
+        </div>
+        <div class="muted">
+          Current Date and Time: {{ currentDateTime }}
+        </div>
+        <div class="muted">
+          Election Status: {{ electionStatus }}
+        </div>
+      </div>
+    
+  </div>
+
   <div class="container card" *ngIf="isOpen">
     <div class="card-header">
-      <div class="card-title">Live Election Results</div>
+      <div class="card-title">Live Election</div>
     </div>
     <div class="card-body">
       <div class="table-wrapper">
@@ -59,6 +86,7 @@
               <th>Candidate</th>
               <th>Position</th>
               <th>Party</th>
+              <th>Votes</th>
             </tr>
           </thead>
           <tbody>
@@ -66,6 +94,17 @@
               <td data-label="Candidate">{{ winner.name }}</td>
               <td data-label="Position">{{ winner.position }}</td>
               <td data-label="Party">{{ winner.partylist }}</td>
+              <td data-label="Votes">
+                <div class="vote-stats">
+                  <span class="percent-text">{{ winner.percentage }}%</span>
+                </div>
+                <div class="progress-track">
+                  <div 
+                    class="progress-fill" 
+                    [style.width.%]="winner.percentage"
+                    [title]="winner.percentage + '%'">
+                  </div>
+                </div>
             </tr>
           </tbody>
         </table>
@@ -137,4 +176,3 @@
     </div>
   </div>
 </div>
-

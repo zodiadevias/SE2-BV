@@ -1,5 +1,43 @@
 @if(role === 'organizer'){
   <div class="dashboard-container">
+    
+    <div class="card insights-card">
+        <div class="card-header">
+            <div class="card-title">Administrative Insights</div>
+        </div>
+        <div class="card-body insights-grid">
+            
+            <div class="metric-card">
+                <h3>Total Organizer Transactions</h3>
+                <p class="metric-value">{{ filteredHistory$.length }}</p>
+            </div>
+            
+            <div class="chart-container">
+                <h4>Administrative Event Volume</h4>
+                <ng-container *ngIf="barChartData.datasets && barChartData.datasets.length > 0">
+                    <canvas baseChart 
+                      [data]="barChartData"
+                      [options]="barChartOptions"
+                      [type]="barChartType"
+                      >
+                    </canvas>
+                </ng-container>
+            </div>
+            
+             <div class="chart-container">
+                <h4>Activity Trend Over Time</h4>
+                <ng-container *ngIf="organizerLineChartData.datasets && organizerLineChartData.datasets.length > 0">
+                    <canvas baseChart 
+                      [data]="organizerLineChartData"       
+                      [options]="organizerLineChartOptions"  
+                      [type]="organizerLineChartType"        
+                      >
+                    </canvas>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
     <div class="card activity-card">
       <div class="card-header">
         <div class="card-title">Recent Activity</div>
@@ -15,13 +53,11 @@
               </tr>
             </thead>
             <tbody>
-              <ng-container *ngIf="(history$ | slice:0:history$.length).reverse().length > 0; else noActivitiesFound">
-                <tr *ngFor="let item of (history$ | slice:0:history$.length).reverse()">
-                    <ng-container *ngIf="item.email === email">
-                      <td data-label="Date">{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
-                      <td data-label="Event">{{ item.name }}</td>
-                      <td data-label="Tx Hash" class="tx-hash">{{ item.txHash }}</td>
-                    </ng-container>
+              <ng-container *ngIf="filteredHistory$.length > 0; else noActivitiesFound">
+                <tr *ngFor="let item of (filteredHistory$ | slice:0:filteredHistory$.length).reverse()">
+                  <td data-label="Date">{{ item.date | date:'dd MMM yyyy, h:mm a' }}</td>
+                  <td data-label="Event">{{ item.name }}</td>
+                  <td data-label="Tx Hash" class="tx-hash">{{ item.txHash }}</td>
                 </tr>
               </ng-container>
               <ng-template #noActivitiesFound>
@@ -39,6 +75,44 @@
 
 @if(role === 'voter'){
   <div class="dashboard-container">
+
+    <div class="card insights-card">
+        <div class="card-header">
+            <div class="card-title">Voting Insights</div>
+        </div>
+        <div class="card-body insights-grid">
+            
+            <div class="metric-card">
+                <h3>Total Votes Cast</h3>
+                <p class="metric-value">{{ filteredVoteHistory$.length }}</p>
+            </div>
+            
+            <div class="chart-container">
+                <h4>Votes Cast Over Time</h4>
+                <ng-container *ngIf="lineChartData.datasets && lineChartData.datasets.length > 0">
+                    <canvas baseChart 
+                      [data]="lineChartData"
+                      [options]="lineChartOptions"
+                      [type]="lineChartType"
+                      >
+                    </canvas>
+                </ng-container>
+            </div>
+            
+            <div class="chart-container">
+                <h4>Elections Participation</h4>
+                <ng-container *ngIf="voterBarChartData.datasets && voterBarChartData.datasets.length > 0">
+                    <canvas baseChart 
+                      [data]="voterBarChartData"
+                      [options]="voterBarChartOptions"
+                      [type]="voterBarChartType"
+                      >
+                    </canvas>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
       <div class="card-header">
         <div class="card-title">Elections You Have Voted In</div>
@@ -47,19 +121,17 @@
       
       <div class="card-body">
         
-        @if(voteHistory$ && voteHistory$.length > 0) {
+        @if(filteredVoteHistory$ && filteredVoteHistory$.length > 0) {
           <div class="voted-elections-grid">
-            <div class="card election-card" *ngFor="let item of (voteHistory$ | slice:0:voteHistory$.length).reverse()">
-              <ng-container *ngIf="item.email === email">
-                <div class="card-header">
-                  <div class="card-title">ID: {{ item.electionId }} - {{ item.electionName }}</div>
-                  <button class="button ghost" type="button" (click)="openElection(item.electionId)">View</button>
-                </div>
-                <div class="card-body">
-                  <p>Voted: {{ item.date | date:'dd MMM yyyy, h:mm a' }}</p>
-                  <p class="tx-hash">Transaction Hash: {{ item.txHash }}</p>
-                </div>
-              </ng-container>
+            <div class="card election-card" *ngFor="let item of (filteredVoteHistory$ | slice:0:filteredVoteHistory$.length).reverse()">
+              <div class="card-header">
+                <div class="card-title">ID: {{ item.electionId }} - {{ item.electionName }}</div>
+                <button class="button ghost" type="button" (click)="openElection(item.electionId)">View</button>
+              </div>
+              <div class="card-body">
+                <p>Voted: {{ item.date | date:'dd MMM yyyy, h:mm a' }}</p>
+                <p class="tx-hash">Transaction Hash: {{ item.txHash }}</p>
+              </div>
             </div>
           </div>
         } @else {
@@ -72,4 +144,3 @@
     </div>
   </div>
 }
-
